@@ -28,9 +28,10 @@ const router = useRouter()
 const bgStyle = computed(() => ({
   backgroundImage: `url(${new URL('@/assets/path-bg.jpg', import.meta.url).href})`,
   backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  backgroundRepeat: 'no-repeat'
+  backgroundPosition: 'center top',
+  backgroundRepeat: 'no-repeat',
 }))
+
 
 function goCreate() { router.push({ name: 'create-room' }) }
 function goSearch() { router.push({ name: 'find-room' }) }
