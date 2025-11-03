@@ -12,6 +12,8 @@ const routes = [
   { path: '/register', name: 'register', component: UserRegister, meta: { hideBottomNav: true } },
   { path: '/find-account', name: 'find-account', component: FindAccount, meta: { hideBottomNav: true } },
 
+
+  { path: '/create-room', name: 'create-room', component: () => import('@/pages/Stub/CreateRoom.vue'), meta: { requiresAuth: true } },
   { path: '/home', name: 'home', component: MainPage, meta: { requiresAuth: true } },
   { path: '/find-room', name: 'find-room', component: () => import('@/pages/Stub/FindRoom.vue'), meta: { requiresAuth: true } },
   { path: '/my-rooms', name: 'my-rooms', component: () => import('@/pages/Stub/MyRooms.vue'), meta: { requiresAuth: true } },

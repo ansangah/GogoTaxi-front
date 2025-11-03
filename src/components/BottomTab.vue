@@ -12,7 +12,7 @@
 <span class="icon">🗂️</span>
 <span class="label">나의 방</span>
 </button>
-<button :class="btnClass('my-page')" @click="go('my-page')">
+<button :class="btnClass('mypage')" @click="go('mypage')">
 <span class="icon">👤</span>
 <span class="label">마이페이지</span>
 </button>
@@ -45,7 +45,7 @@ display: grid;
 grid-template-columns: repeat(4, 1fr);
 background: #fff;
 border-top: 1px solid #eee;
-z-index: 10;
+z-index: 10000;
 }
 .tab-btn {
 appearance: none; border: 0; background: none;
