@@ -2,8 +2,13 @@
   <div class="settings-wrapper">
     <main class="settings-card">
       <header class="settings-header">
-        <h1>프로필 수정</h1>
-        <p>가입 시 입력한 정보를 확인하세요.</p>
+        <button type="button" class="back-button" @click="goBack" aria-label="마이페이지로 돌아가기">
+          ←
+        </button>
+        <div class="settings-title">
+          <h1>프로필 수정</h1>
+          <p>가입 시 입력한 정보를 확인하세요.</p>
+        </div>
       </header>
 
       <section class="info-section">
@@ -136,8 +141,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import { computed, onBeforeUnmount, reactive, ref } from "vue";
 
 const router = useRouter();
 
@@ -303,6 +308,10 @@ const requestLogout = () => {
   showLogoutConfirm.value = true;
 };
 
+const goBack = () => {
+  router.back();
+};
+
 const cancelLogout = () => {
   showLogoutConfirm.value = false;
 };
@@ -338,19 +347,46 @@ const confirmLogout = () => {
   gap: 1.6rem;
 }
 
-.settings-header h1 {
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-button {
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 16px rgba(233, 184, 116, 0.25);
+  color: #a0641b;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.settings-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.settings-title h1 {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
   color: #2f2f33;
 }
 
-.settings-header p {
+.settings-title p {
   margin: 0.5rem 0 0;
   font-size: 0.95rem;
   color: #6a6a6f;
   line-height: 1.5;
 }
+
 
 .info-section {
   display: flex;
@@ -620,6 +656,16 @@ const confirmLogout = () => {
 }
 
 @media (max-width: 360px) {
+  .settings-header {
+    gap: 0.75rem;
+  }
+
+  .back-button {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+  }
+
   .settings-card {
     padding: 2rem 1.2rem;
   }
