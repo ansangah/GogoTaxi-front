@@ -290,7 +290,7 @@ function goLatestNotice() {
   position: relative;
   width: 100%;
   min-height: clamp(880px, 135dvh, 1600px);
-  padding: clamp(28px, 5vh, 72px) 0 clamp(120px, 8vh, 180px);
+  padding: clamp(36px, 6vh, 84px) 0 clamp(110px, 8vh, 180px);
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(58, 41, 25, 0.95) 0%, rgba(45, 29, 17, 0.95) 62%, #372112 100%),
@@ -547,7 +547,7 @@ function goLatestNotice() {
 }
 .notice-banner {
   width: min(92%, 980px);
-  margin: clamp(-68px, -8vh, -32px) auto clamp(10px, 2vh, 20px);
+  margin: clamp(-48px, -6vh, -24px) auto clamp(10px, 2vh, 20px);
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.04);
@@ -608,6 +608,21 @@ function goLatestNotice() {
   padding-left: 100%;
   animation: notice-marquee 18s linear infinite;
   will-change: transform;
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    padding-top: clamp(72px, 9vh, 124px);
+  }
+  .notice-banner {
+    margin: clamp(-32px, -4vh, -18px) auto clamp(14px, 2.2vh, 26px);
+  }
+  .map-board {
+    margin-bottom: clamp(20px, 3vh, 36px);
+  }
+  .gateway {
+    margin: clamp(16px, 2.6vh, 32px) auto 0;
+  }
 }
 
 @keyframes notice-marquee {
