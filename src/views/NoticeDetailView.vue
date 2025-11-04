@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { notices, NoticeType } from './notices'
+import { notices, NoticeType } from '@/components/notices'
 
 const route = useRoute()
 const router = useRouter()

@@ -245,7 +245,7 @@ import { useRouter } from 'vue-router'
 import logoMake from '@/assets/logo_make.png'
 import logoFind from '@/assets/logo_find.png'
 import logoMy from '@/assets/logo_my.png'
-import { notices } from '@/pages/Home/Notice/notices'
+import { notices } from '@/components/notices'
 
 const router = useRouter()
 
