@@ -2,6 +2,25 @@
 <template>
   <section class="main">
     <div class="hero">
+      <div
+        v-if="latestNotice"
+        class="notice-banner"
+        role="button"
+        tabindex="0"
+        :aria-label="`최신 공지 ${latestNotice.title} 바로가기`"
+        @click="goLatestNotice"
+        @keydown.enter.prevent="goLatestNotice"
+        @keydown.space.prevent="goLatestNotice"
+      >
+        <div class="notice-banner__glass">
+          <span class="notice-banner__label">최신 공지</span>
+          <div class="notice-banner__marquee">
+            <span class="notice-banner__track">
+              {{ marqueeText }}
+            </span>
+          </div>
+        </div>
+      </div>
       <div class="map-board">
         <div class="board-header">
           <h2>꼬꼬택 주요 메뉴</h2>
@@ -220,11 +239,13 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import logoMake from '@/assets/logo_make.png'
 import logoFind from '@/assets/logo_find.png'
 import logoMy from '@/assets/logo_my.png'
+import { notices } from '@/pages/Home/Notice/notices'
 
 const router = useRouter()
 
@@ -243,6 +264,18 @@ function goNotice() {
 function goPayment() {
   router.push({ name: 'payment-methods' })
 }
+
+const latestNotice = computed(() => {
+  if (!notices.length) return null
+  return [...notices].sort((a, b) => (a.date < b.date ? 1 : -1))[0] ?? null
+})
+
+const marqueeText = computed(() => latestNotice.value?.title.trim() ?? '')
+
+function goLatestNotice() {
+  if (!latestNotice.value) return
+  router.push({ name: 'notice-detail', params: { id: latestNotice.value.id } })
+}
 </script>
 
 <style scoped>
@@ -256,8 +289,8 @@ function goPayment() {
 .hero {
   position: relative;
   width: 100%;
-  min-height: clamp(1000px, 150dvh, 1700px);
-  padding: clamp(100px, 14vh, 180px) 0 clamp(220px, 14vh, 320px);
+  min-height: clamp(880px, 135dvh, 1600px);
+  padding: clamp(28px, 5vh, 72px) 0 clamp(120px, 8vh, 180px);
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(58, 41, 25, 0.95) 0%, rgba(45, 29, 17, 0.95) 62%, #372112 100%),
@@ -284,13 +317,13 @@ function goPayment() {
   width: min(92%, 980px);
   display: grid;
   gap: clamp(16px, 3vw, 28px);
-  padding: clamp(20px, 3.6vw, 32px);
+  padding: clamp(18px, 3vw, 28px);
   border-radius: 36px;
   background: linear-gradient(145deg, #faf7ec 0%, #f2ede0 50%, #e7decd 100%);
   border: 1px solid rgba(92, 64, 36, 0.22);
   box-shadow: 0 48px 90px rgba(8, 6, 3, 0.45);
   z-index: 0;
-  margin-bottom: clamp(48px, 8vh, 90px);
+  margin-bottom: clamp(12px, 2vh, 24px);
 }
 .map-board::after {
   content: '';
@@ -427,7 +460,7 @@ function goPayment() {
 
 .gateway {
   width: min(96%, 980px);
-  margin: clamp(24px, 4vh, 48px) auto 0;
+  margin: clamp(0px, 1.6vh, 18px) auto 0;
   padding: 0 clamp(18px, 6vw, 32px);
   display: grid;
   gap: clamp(20px, 3vw, 28px);
@@ -512,10 +545,87 @@ function goPayment() {
   box-shadow: 0 12px 24px rgba(20, 12, 6, 0.25);
   background: #433323;
 }
+.notice-banner {
+  width: min(92%, 980px);
+  margin: clamp(-68px, -8vh, -32px) auto clamp(10px, 2vh, 20px);
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 18px 32px rgba(8, 4, 0, 0.28);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  z-index: 2;
+}
+.notice-banner:focus-visible {
+  outline: none;
+  box-shadow:
+    0 20px 38px rgba(8, 4, 0, 0.32),
+    0 0 0 3px rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+.notice-banner:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 24px 44px rgba(8, 4, 0, 0.34),
+    0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+.notice-banner__glass {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 16px);
+  padding: clamp(6px, 2vw, 10px) clamp(14px, 3vw, 22px);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(16px);
+  color: #fff6eb;
+}
+.notice-banner__label {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.4);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #e5f2ff;
+}
+.notice-banner__marquee {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  height: 20px;
+}
+.notice-banner__track {
+  display: inline-block;
+  min-width: 100%;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 247, 233, 0.9);
+  padding-left: 100%;
+  animation: notice-marquee 18s linear infinite;
+  will-change: transform;
+}
+
+@keyframes notice-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
 
 @media (max-width: 820px) {
   .map-board {
     margin-bottom: clamp(32px, 6vh, 70px);
+  }
+  .notice-banner {
+    width: min(96%, 860px);
+    margin: 0 auto clamp(24px, 4vh, 36px);
   }
 }
 
@@ -537,6 +647,19 @@ function goPayment() {
   }
   .info-panel {
     width: calc(100% - 32px);
+  }
+  .notice-banner__glass {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 6px;
+  }
+  .notice-banner__label {
+    justify-content: center;
+    width: 100%;
+  }
+  .notice-banner__marquee {
+    width: 100%;
   }
 }
 </style>
