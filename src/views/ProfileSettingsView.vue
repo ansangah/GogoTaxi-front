@@ -1,9 +1,9 @@
 <template>
   <div class="settings-wrapper">
-    <main class="settings-card">
+    <div class="settings-content">
       <header class="settings-header">
         <button type="button" class="back-button" @click="goBack" aria-label="마이페이지로 돌아가기">
-          ←
+          <img :src="arrowBackIcon" alt="" class="back-icon" aria-hidden="true" />
         </button>
         <div class="settings-title">
           <h1>프로필 수정</h1>
@@ -11,7 +11,8 @@
         </div>
       </header>
 
-      <section class="info-section">
+      <main class="settings-card">
+        <section class="info-section">
         <h2 class="section-title">기본 정보</h2>
         <div class="info-list">
           <article class="info-item" :class="{ 'info-item--editing': editingField === 'nickname' }">
@@ -118,6 +119,7 @@
 
       <button type="button" class="logout-button" @click="requestLogout">로그아웃</button>
     </main>
+  </div>
 
     <transition name="fade">
       <div
@@ -143,6 +145,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { computed, onBeforeUnmount, reactive, ref } from "vue";
+import arrowBackIcon from "@/assets/arrowback.png";
 
 const router = useRouter();
 
@@ -331,7 +334,7 @@ const confirmLogout = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #ffe4b3 0%, #fff1d8 35%, #ffffff 100%);
+  background: #3a2e20;
   padding: 3.5rem 1rem 3rem;
   font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
 }
@@ -355,16 +358,24 @@ const confirmLogout = () => {
 
 .back-button {
   border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  background: #fdd651;
-  box-shadow: 0 8px 16px rgba(203, 128, 38, 0.25);
-  color: #5c3604;
-  font-size: 1.1rem;
+  background: transparent;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+}
+
+.back-button:focus-visible {
+  outline: 3px solid rgba(203, 128, 38, 0.4);
+  border-radius: 8px;
+  outline-offset: 2px;
+}
+
+.back-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .settings-title {
@@ -661,9 +672,12 @@ const confirmLogout = () => {
   }
 
   .back-button {
-    width: 34px;
-    height: 34px;
-    font-size: 1rem;
+    padding: 2px;
+  }
+
+  .back-icon {
+    width: 20px;
+    height: 20px;
   }
 
   .settings-card {

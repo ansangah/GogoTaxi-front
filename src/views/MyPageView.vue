@@ -1,39 +1,39 @@
 <template>
   <div class="mypage-wrapper">
-    <main class="mypage-card">
-      <header class="card-header">
+    <div class="mypage-content">
+      <section class="profile-summary">
         <div class="profile-avatar">
-          <img
-            :src="user.gender === 'female' ? '/images/female-profile.png' : '/images/male-profile.png'"
-            alt="프로필 이미지"
-          />
+          <img :src="profileImage" alt="프로필 이미지" />
         </div>
-        <div class="nickname-block">
-          <div class="nickname-row">
-            <span class="nickname-label">{{ user.nickname }}</span>
-            <button type="button" class="edit-button" @click="openProfileSettings">
-              <span class="sr-only">프로필 수정 페이지로 이동</span>
-              <img :src="editIcon" alt="" class="edit-icon" aria-hidden="true" />
-            </button>
-          </div>
+        <div class="profile-details">
+          <span class="profile-name">{{ user.nickname }}</span>
+          <span v-if="user.phone" class="profile-meta">{{ user.phone }}</span>
+          <span v-else class="profile-meta">GoGoTaxi 회원</span>
         </div>
-      </header>
+        <button type="button" class="edit-button" @click="openProfileSettings">
+          <span class="sr-only">프로필 수정 페이지 이동</span>
+          <img :src="editIcon" alt="" class="edit-icon" aria-hidden="true" />
+        </button>
+      </section>
 
-      <nav class="menu-list">
-        <button type="button" class="menu-item" @click="goTo('history')">
-          <span class="menu-item-label">이용 기록</span>
-          <i class="menu-item-arrow" aria-hidden="true">›</i>
-        </button>
-        <button type="button" class="menu-item" @click="goTo('payment')">
-          <span class="menu-item-label">결제 수단 관리</span>
-          <i class="menu-item-arrow" aria-hidden="true">›</i>
-        </button>
-        <button type="button" class="menu-item" @click="goTo('notice')">
-          <span class="menu-item-label">공지사항</span>
-          <i class="menu-item-arrow" aria-hidden="true">›</i>
-        </button>
-      </nav>
-    </main>
+      <section class="menu-section">
+        <h2 class="section-title">바로가기</h2>
+        <nav class="menu-list">
+          <button type="button" class="menu-item" @click="goTo('history')">
+            <span class="menu-item-label">이용 기록</span>
+            <span class="menu-item-arrow" aria-hidden="true">&gt;</span>
+          </button>
+          <button type="button" class="menu-item" @click="goTo('payment')">
+            <span class="menu-item-label">결제 수단 관리</span>
+            <span class="menu-item-arrow" aria-hidden="true">&gt;</span>
+          </button>
+          <button type="button" class="menu-item" @click="goTo('notice')">
+            <span class="menu-item-label">공지사항</span>
+            <span class="menu-item-arrow" aria-hidden="true">&gt;</span>
+          </button>
+        </nav>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -41,12 +41,14 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import editIcon from "@/assets/edit.png";
+import profileImage from "@/assets/user.png";
 
 const router = useRouter();
 
 const user = ref({
   gender: "female",
   nickname: "김예은",
+  phone: "010-1234-5678",
 });
 
 const routeNameMap: Record<string, string> = {
@@ -74,67 +76,67 @@ const openProfileSettings = () => {
 <style scoped>
 .mypage-wrapper {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, #ffe4b3 0%, #fff1d8 35%, #ffffff 100%);
-  padding: 3.5rem 1rem 3rem;
+  background: #3a2e20;
+  padding: 4rem 1.25rem 4.5rem;
   font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
 }
 
-.mypage-card {
-  width: min(420px, 100%);
-  background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 18px 32px rgba(238, 187, 110, 0.28);
-  padding: 2.2rem 1.6rem 1.9rem;
+.mypage-content {
+  width: min(640px, 100%);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 1.75rem;
 }
 
-.card-header {
+.profile-summary {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1.25rem;
+  padding: 1.7rem 1.6rem;
+  background: #eeeff2;
+  border-radius: 28px;
+  box-shadow: 0 24px 40px rgba(237, 173, 98, 0.18);
 }
 
 .profile-avatar {
-  width: 88px;
-  height: 88px;
+  width: 84px;
+  height: 84px;
   border-radius: 50%;
   background: #fdd651;
   display: grid;
   place-items: center;
-  box-shadow: inset 0 0 0 5px #fff;
+  box-shadow: inset 0 0 0 3px #fff;
   flex-shrink: 0;
+  border: 3px solid #fdd651;
 }
 
 .profile-avatar img {
-  width: 72px;
-  height: 72px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   object-fit: cover;
   background: #fff7e3;
+  border: 3px solid #fff;
 }
 
-.nickname-block {
-  flex: 1;
+.profile-details {
   display: flex;
   flex-direction: column;
+  gap: 0.35rem;
   justify-content: center;
+  flex: 1;
 }
 
-.nickname-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.nickname-label {
-  font-size: 1.2rem;
+.profile-name {
+  font-size: 1.35rem;
   font-weight: 700;
   color: #2f2f33;
+}
+
+.profile-meta {
+  font-size: 0.96rem;
+  color: #6d6d73;
 }
 
 .edit-button {
@@ -145,11 +147,13 @@ const openProfileSettings = () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
+  margin-left: auto;
 }
 
 .edit-icon {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   transition: transform 0.18s ease;
 }
@@ -165,11 +169,27 @@ const openProfileSettings = () => {
   outline-offset: 3px;
 }
 
+.menu-section {
+  background: #eeeff2;
+  border-radius: 28px;
+  box-shadow: 0 22px 44px rgba(237, 173, 98, 0.16);
+  padding: 1.25rem 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #3a3a40;
+}
 
 .menu-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 .menu-item {
@@ -177,21 +197,21 @@ const openProfileSettings = () => {
   border: none;
   border-radius: 18px;
   background: #fdd651;
-  padding: 0.9rem 1.1rem;
+  padding: 0.95rem 1.1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #2f2f33;
   cursor: pointer;
-  box-shadow: 0 10px 18px rgba(203, 128, 38, 0.2);
+  box-shadow: 0 14px 22px rgba(203, 128, 38, 0.22);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .menu-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 22px rgba(203, 128, 38, 0.28);
+  box-shadow: 0 16px 26px rgba(203, 128, 38, 0.28);
 }
 
 .menu-item:focus-visible {
@@ -205,9 +225,8 @@ const openProfileSettings = () => {
 }
 
 .menu-item-arrow {
-  font-style: normal;
   font-size: 1.2rem;
-  color: #c48332;
+  color: #a76c16;
   margin-left: 0.75rem;
 }
 
@@ -222,39 +241,50 @@ const openProfileSettings = () => {
   border: 0;
 }
 
-@media (max-width: 360px) {
+@media (max-width: 480px) {
+  .mypage-wrapper {
+    padding: 3.2rem 1rem 3.5rem;
+  }
+
+  .profile-summary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.1rem;
+  }
+
   .profile-avatar {
-    width: 76px;
-    height: 76px;
+    width: 74px;
+    height: 74px;
+    align-self: center;
   }
 
   .profile-avatar img {
-    width: 62px;
-    height: 62px;
+    width: 60px;
+    height: 60px;
   }
 
-  .nickname-label {
-    font-size: 1.1rem;
+  .profile-details {
+    align-items: center;
+    text-align: center;
   }
 
   .edit-button {
-    width: 36px;
-    height: 36px;
+    margin-left: 0;
+    align-self: center;
   }
 }
 
 @media (min-width: 768px) {
   .mypage-wrapper {
-    padding: 4.5rem 2rem;
+    padding: 5rem 2rem 5rem;
   }
 
-  .mypage-card {
-    width: min(520px, 100%);
-    padding: 2.5rem 2.2rem 2.2rem;
+  .profile-name {
+    font-size: 1.5rem;
   }
 
-  .nickname-label {
-    font-size: 1.3rem;
+  .menu-item {
+    font-size: 1.05rem;
   }
 }
 </style>

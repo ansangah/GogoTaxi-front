@@ -2,7 +2,7 @@
   <div class="history-wrapper">
     <header class="history-header">
       <button type="button" class="back-button" @click="goBack" aria-label="마이페이지로 돌아가기">
-        ←
+        <img :src="arrowBackIcon" alt="" class="back-icon" aria-hidden="true" />
       </button>
       <h1>이용 기록</h1>
     </header>
@@ -58,6 +58,7 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import arrowBackIcon from "@/assets/arrowback.png";
 
 const router = useRouter();
 
@@ -102,7 +103,7 @@ const goToReview = (rideId: number) => {
 <style scoped>
 .history-wrapper {
   min-height: 100vh;
-  background: linear-gradient(180deg, #ffe4b3 0%, #fff1d8 35%, #ffffff 100%);
+  background: #3a2e20;
   font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
   padding: 3.5rem 1.25rem 2.5rem;
   display: flex;
@@ -120,21 +121,29 @@ const goToReview = (rideId: number) => {
   margin: 0;
   font-size: 1.35rem;
   font-weight: 700;
-  color: #2f2f33;
+  color: #eeeff2;
 }
 
 .back-button {
   border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 16px rgba(233, 184, 116, 0.25);
-  color: #a0641b;
-  font-size: 1.05rem;
+  background: transparent;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+}
+
+.back-button:focus-visible {
+  outline: 3px solid rgba(203, 128, 38, 0.4);
+  border-radius: 8px;
+  outline-offset: 2px;
+}
+
+.back-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .history-content {
@@ -144,7 +153,7 @@ const goToReview = (rideId: number) => {
 }
 
 .history-card {
-  background: #ffffff;
+  background: #eeeff2;
   border-radius: 20px;
   padding: 1.4rem 1.3rem 1.25rem;
   box-shadow: 0 18px 32px rgba(233, 184, 116, 0.22);
@@ -208,7 +217,7 @@ const goToReview = (rideId: number) => {
 
 .ride-row.total dd {
   font-weight: 700;
-  color: #ff775f;
+  color: #3a3a40;
 }
 
 .ride-row dd {
@@ -234,9 +243,9 @@ const goToReview = (rideId: number) => {
 }
 
 .action-button--primary {
-  background: linear-gradient(135deg, #ff9c8b 0%, #ff775f 100%);
+  background: #3a2e20;
   color: #ffffff;
-  box-shadow: 0 12px 20px rgba(255, 119, 95, 0.32);
+  box-shadow: 0 12px 20px rgba(58, 46, 32, 0.35);
 }
 
 .action-button:hover {
