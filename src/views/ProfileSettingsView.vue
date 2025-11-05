@@ -360,9 +360,9 @@ const confirmLogout = () => {
   height: 40px;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 16px rgba(233, 184, 116, 0.25);
-  color: #a0641b;
+  background: #fdd651;
+  box-shadow: 0 8px 16px rgba(203, 128, 38, 0.25);
+  color: #5c3604;
   font-size: 1.1rem;
   cursor: pointer;
 }
@@ -458,8 +458,8 @@ const confirmLogout = () => {
 .info-action {
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, #ffd890 0%, #f9b462 100%);
-  color: #784308;
+  background: #fdd651;
+  color: #4e2d04;
   font-size: 0.82rem;
   font-weight: 600;
   padding: 0.35rem 0.75rem;
@@ -468,14 +468,14 @@ const confirmLogout = () => {
 }
 
 .info-action--ghost {
-  background: #fff5e5;
-  color: #a0641b;
-  border: 1px solid rgba(160, 100, 27, 0.2);
+  background: #fdd651;
+  color: #4e2d04;
+  border: none;
 }
 
 .info-action:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 14px rgba(203, 128, 38, 0.22);
+  box-shadow: 0 8px 16px rgba(203, 128, 38, 0.24);
 }
 
 .info-action:focus-visible {
@@ -532,20 +532,20 @@ const confirmLogout = () => {
   padding: 0.55rem 0.75rem;
   font-size: 0.9rem;
   font-weight: 600;
-  background: #fff0dd;
-  color: #a0641b;
+  background: #fdd651;
+  color: #4e2d04;
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .editor-button--primary {
-  background: linear-gradient(135deg, #ffd890 0%, #f9b462 100%);
-  color: #623500;
+  background: #fdd651;
+  color: #4e2d04;
 }
 
 .editor-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 16px rgba(203, 128, 38, 0.2);
+  box-shadow: 0 10px 18px rgba(203, 128, 38, 0.25);
 }
 
 .editor-button:focus-visible {
@@ -634,24 +634,24 @@ const confirmLogout = () => {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  background: #f3f3f8;
-  color: #3f3f47;
+  background: #fdd651;
+  color: #4e2d04;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .alert-button--primary {
-  background: linear-gradient(135deg, #ff9c8b 0%, #ff775f 100%);
-  color: #ffffff;
-  box-shadow: 0 12px 20px rgba(255, 119, 95, 0.32);
+  background: #fdd651;
+  color: #4e2d04;
+  box-shadow: 0 12px 20px rgba(203, 128, 38, 0.24);
 }
 
 .alert-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 20px rgba(203, 128, 38, 0.24);
 }
 
 .alert-button:focus-visible {
-  outline: 2px solid rgba(255, 119, 95, 0.45);
+  outline: 2px solid rgba(203, 128, 38, 0.35);
   outline-offset: 2px;
 }
 

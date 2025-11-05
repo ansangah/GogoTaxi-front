@@ -13,39 +13,9 @@
             <span class="nickname-label">{{ user.nickname }}</span>
             <button type="button" class="edit-button" @click="openProfileSettings">
               <span class="sr-only">프로필 수정 페이지로 이동</span>
-              <svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <g class="edit-icon-shadow">
-                  <path d="M4 17.3 13.7 7.6l3.1 3.1-9.7 9.7Z" />
-                </g>
-                <path
-                  class="edit-icon-body"
-                  d="m4.3 17.1 2.7 2.7 10.1-10.1-2.7-2.7L4.3 17.1Z"
-                />
-                <rect
-                  class="edit-icon-mid"
-                  x="12.1"
-                  y="4.6"
-                  width="4"
-                  height="4"
-                  rx="0.7"
-                  transform="rotate(-45 14.1 6.6)"
-                />
-                <path
-                  class="edit-icon-eraser"
-                  d="m14.9 3.4 1.8-1.8a1.1 1.1 0 0 1 1.6 0l1.3 1.3a1.1 1.1 0 0 1 0 1.6l-1.8 1.8-2.9-2.9Z"
-                />
-                <path
-                  class="edit-icon-tip"
-                  d="M4.1 17.3 3.3 21l3.7-.8-.9-2.9Z"
-                />
-                <path
-                  class="edit-icon-outline"
-                  d="m3.2 21 1-4.9 10.1-10.1 3.7 3.7-10.1 10.1L3.2 21Z"
-                />
-              </svg>
+              <img :src="editIcon" alt="" class="edit-icon" aria-hidden="true" />
             </button>
           </div>
-          <div class="nickname-underline"></div>
         </div>
       </header>
 
@@ -70,6 +40,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import editIcon from "@/assets/edit.png";
 
 const router = useRouter();
 
@@ -132,7 +103,7 @@ const openProfileSettings = () => {
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  background: linear-gradient(145deg, #ffe9c3, #f8c983);
+  background: #fdd651;
   display: grid;
   place-items: center;
   box-shadow: inset 0 0 0 5px #fff;
@@ -166,75 +137,34 @@ const openProfileSettings = () => {
   color: #2f2f33;
 }
 
-.nickname-underline {
-  margin-top: 0.5rem;
-  height: 2px;
-  width: 100%;
-  background: linear-gradient(90deg, #f9c66a 0%, rgba(249, 198, 106, 0) 100%);
-}
-
 .edit-button {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, #ffd890 0%, #f9b462 100%);
+  background: transparent;
+  padding: 4px;
   cursor: pointer;
-  display: grid;
-  place-items: center;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .edit-icon {
   width: 24px;
   height: 24px;
+  object-fit: contain;
+  transition: transform 0.18s ease;
 }
 
-.edit-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 14px rgba(203, 128, 38, 0.24);
+.edit-button:hover .edit-icon,
+.edit-button:focus-visible .edit-icon {
+  transform: scale(1.05);
 }
 
 .edit-button:focus-visible {
   outline: 3px solid rgba(203, 128, 38, 0.4);
+  border-radius: 8px;
   outline-offset: 3px;
 }
 
-.edit-icon-shadow path {
-  fill: rgba(0, 0, 0, 0.08);
-}
-
-.edit-icon-outline {
-  fill: none;
-  stroke: #6f3a00;
-  stroke-width: 1.1;
-  stroke-linejoin: round;
-}
-
-.edit-icon-body {
-  fill: #ffdf7b;
-  stroke: #f6b74b;
-  stroke-width: 1;
-}
-
-.edit-icon-mid {
-  fill: #f7c974;
-  stroke: #f1a74c;
-  stroke-width: 1;
-}
-
-.edit-icon-eraser {
-  fill: #f8a0a9;
-  stroke: #dc6c7b;
-  stroke-width: 1;
-}
-
-.edit-icon-tip {
-  fill: #fdecc9;
-  stroke: #ba8042;
-  stroke-width: 0.9;
-  stroke-linejoin: round;
-}
 
 .menu-list {
   display: flex;
@@ -246,7 +176,7 @@ const openProfileSettings = () => {
   width: 100%;
   border: none;
   border-radius: 18px;
-  background: linear-gradient(135deg, #fff3d5 0%, #ffe7c3 100%);
+  background: #fdd651;
   padding: 0.9rem 1.1rem;
   display: flex;
   align-items: center;
@@ -255,17 +185,17 @@ const openProfileSettings = () => {
   font-weight: 600;
   color: #2f2f33;
   cursor: pointer;
-  box-shadow: 0 10px 18px rgba(244, 193, 122, 0.18);
+  box-shadow: 0 10px 18px rgba(203, 128, 38, 0.2);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .menu-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 20px rgba(237, 173, 98, 0.26);
+  box-shadow: 0 12px 22px rgba(203, 128, 38, 0.28);
 }
 
 .menu-item:focus-visible {
-  outline: 3px solid rgba(237, 173, 98, 0.4);
+  outline: 3px solid rgba(203, 128, 38, 0.4);
   outline-offset: 3px;
 }
 
