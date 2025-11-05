@@ -42,7 +42,7 @@ html, body {
   -ms-overflow-style: none;
 }
 
-.app-shell { position: relative; min-height: 100%; background: #fff; }
+.app-shell { position: relative; min-height: 100%; background: #3a2e20; }
 .app-content {
   padding-top: var(--header-h);
   padding-bottom: var(--tab-h); /* 기본값(탭 보일 때) */
