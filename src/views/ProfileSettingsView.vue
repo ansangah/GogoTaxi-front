@@ -1,160 +1,188 @@
 <template>
   <div class="settings-wrapper">
-    <div class="settings-content">
+    <div class="settings-container">
       <header class="settings-header">
-        <button type="button" class="back-button" @click="goBack" aria-label="마이페이지로 돌아가기">
+        <button type="button" class="back-button" @click="goBack" :aria-label="labels.back">
           <img :src="arrowBackIcon" alt="" class="back-icon" aria-hidden="true" />
         </button>
-        <div class="settings-title">
-          <h1>프로필 수정</h1>
-          <p>가입 시 입력한 정보를 확인하세요.</p>
-        </div>
+        <h1 class="settings-title">{{ labels.title }}</h1>
+        <span class="header-spacer" aria-hidden="true"></span>
       </header>
 
       <main class="settings-card">
         <section class="info-section">
-        <h2 class="section-title">기본 정보</h2>
-        <div class="info-list">
-          <article class="info-item" :class="{ 'info-item--editing': editingField === 'nickname' }">
-            <span class="info-label">닉네임</span>
-            <div v-if="editingField === 'nickname'" class="info-editor">
-              <input
-                v-model.trim="editForm.nickname"
-                type="text"
-                class="info-input"
-                placeholder="새 닉네임을 입력하세요"
-                maxlength="16"
-                @keyup.enter="saveNickname"
-              />
-              <p v-if="errors.nickname" class="info-error">{{ errors.nickname }}</p>
-              <div class="editor-actions">
-                <button type="button" class="editor-button editor-button--primary" @click="saveNickname">저장</button>
-                <button type="button" class="editor-button" @click="cancelEdit">취소</button>
+          <h2 class="section-title">{{ labels.basicSection }}</h2>
+          <div class="info-list">
+            <article class="info-item" :class="{ 'info-item--editing': editingField === 'nickname' }">
+              <span class="info-label">{{ labels.nickname }}</span>
+              <div v-if="editingField === 'nickname'" class="info-editor">
+                <input
+                  v-model.trim="editForm.nickname"
+                  type="text"
+                  class="info-input"
+                  maxlength="16"
+                  :placeholder="placeholders.nickname"
+                  @keyup.enter="saveNickname"
+                />
+                <p v-if="errors.nickname" class="info-error">{{ errors.nickname }}</p>
+                <div class="editor-actions">
+                  <button type="button" class="editor-button editor-button--primary" @click="saveNickname">{{ labels.save }}</button>
+                  <button type="button" class="editor-button" @click="cancelEdit">{{ labels.cancel }}</button>
+                </div>
               </div>
-            </div>
-            <div v-else class="info-content">
-              <span class="info-text">{{ account.nickname }}</span>
-              <button type="button" class="info-action" @click="startEdit('nickname')">변경</button>
-            </div>
-          </article>
-
-          <article class="info-item" :class="{ 'info-item--editing': editingField === 'phone' }">
-            <span class="info-label">전화번호</span>
-            <div v-if="editingField === 'phone'" class="info-editor">
-              <input
-                v-model.trim="editForm.phone"
-                type="tel"
-                class="info-input"
-                placeholder="010-0000-0000"
-                @keyup.enter="savePhone"
-              />
-              <p v-if="errors.phone" class="info-error">{{ errors.phone }}</p>
-              <div class="editor-actions">
-                <button type="button" class="editor-button editor-button--primary" @click="savePhone">저장</button>
-                <button type="button" class="editor-button" @click="cancelEdit">취소</button>
+              <div v-else class="info-content">
+                <span class="info-text">{{ account.nickname }}</span>
+                <button type="button" class="info-action" @click="startEdit('nickname')">{{ labels.edit }}</button>
               </div>
-            </div>
-            <div v-else class="info-content">
-              <span class="info-text">{{ account.phone }}</span>
-              <button type="button" class="info-action" @click="startEdit('phone')">변경</button>
-            </div>
-          </article>
+            </article>
 
-          <article class="info-item">
-            <span class="info-label">아이디</span>
-            <div class="info-content">
-              <span class="info-text">{{ account.username }}</span>
-              <button type="button" class="info-action info-action--ghost" @click="copyUsername">복사</button>
-            </div>
-          </article>
-          <p v-if="copyFeedback" class="copy-feedback">{{ copyFeedback }}</p>
-
-          <article class="info-item" :class="{ 'info-item--editing': editingField === 'password' }">
-            <span class="info-label">비밀번호</span>
-            <div v-if="editingField === 'password'" class="info-editor">
-              <input
-                v-model="editForm.password"
-                type="password"
-                class="info-input"
-                placeholder="새 비밀번호를 입력하세요"
-              />
-              <input
-                v-model="editForm.passwordConfirm"
-                type="password"
-                class="info-input"
-                placeholder="비밀번호를 한 번 더 입력하세요"
-                @keyup.enter="savePassword"
-              />
-              <p v-if="errors.password" class="info-error">{{ errors.password }}</p>
-              <div class="editor-actions">
-                <button type="button" class="editor-button editor-button--primary" @click="savePassword">저장</button>
-                <button type="button" class="editor-button" @click="cancelEdit">취소</button>
+            <article class="info-item" :class="{ 'info-item--editing': editingField === 'phone' }">
+              <span class="info-label">{{ labels.phone }}</span>
+              <div v-if="editingField === 'phone'" class="info-editor">
+                <input
+                  v-model.trim="editForm.phone"
+                  type="tel"
+                  class="info-input"
+                  :placeholder="placeholders.phone"
+                  @keyup.enter="savePhone"
+                />
+                <p v-if="errors.phone" class="info-error">{{ errors.phone }}</p>
+                <div class="editor-actions">
+                  <button type="button" class="editor-button editor-button--primary" @click="savePhone">{{ labels.save }}</button>
+                  <button type="button" class="editor-button" @click="cancelEdit">{{ labels.cancel }}</button>
+                </div>
               </div>
-            </div>
-            <div v-else class="info-content">
-              <span class="info-text">{{ passwordMask }}</span>
-              <button type="button" class="info-action" @click="startEdit('password')">재설정</button>
-            </div>
-          </article>
-        </div>
-      </section>
+              <div v-else class="info-content">
+                <span class="info-text">{{ account.phone }}</span>
+                <button type="button" class="info-action" @click="startEdit('phone')">{{ labels.edit }}</button>
+              </div>
+            </article>
 
-      <section class="info-section">
-        <h2 class="section-title">부가 정보</h2>
-        <div class="info-list">
-          <article class="info-item">
-            <span class="info-label">성별</span>
-            <div class="info-content">
-              <span class="info-text">{{ account.gender }}</span>
-            </div>
-          </article>
-          <article class="info-item">
-            <span class="info-label">생년월일</span>
-            <div class="info-content">
-              <span class="info-text">{{ account.birthDate }}</span>
-            </div>
-          </article>
-        </div>
-      </section>
+            <article class="info-item">
+              <span class="info-label">{{ labels.username }}</span>
+              <div class="info-content">
+                <span class="info-text">{{ account.username }}</span>
+                <button type="button" class="info-action info-action--ghost" @click="copyUsername">{{ labels.copy }}</button>
+              </div>
+            </article>
+            <p v-if="copyFeedback" class="copy-feedback">{{ copyFeedback }}</p>
 
-      <button type="button" class="logout-button" @click="requestLogout">로그아웃</button>
-    </main>
-  </div>
+            <article class="info-item" :class="{ 'info-item--editing': editingField === 'password' }">
+              <span class="info-label">{{ labels.password }}</span>
+              <div v-if="editingField === 'password'" class="info-editor">
+                <input
+                  v-model="editForm.password"
+                  type="password"
+                  class="info-input"
+                  :placeholder="placeholders.password"
+                />
+                <input
+                  v-model="editForm.passwordConfirm"
+                  type="password"
+                  class="info-input"
+                  :placeholder="placeholders.passwordConfirm"
+                  @keyup.enter="savePassword"
+                />
+                <p v-if="errors.password" class="info-error">{{ errors.password }}</p>
+                <div class="editor-actions">
+                  <button type="button" class="editor-button editor-button--primary" @click="savePassword">{{ labels.save }}</button>
+                  <button type="button" class="editor-button" @click="cancelEdit">{{ labels.cancel }}</button>
+                </div>
+              </div>
+              <div v-else class="info-content">
+                <span class="info-text">{{ passwordMask }}</span>
+                <button type="button" class="info-action" @click="startEdit('password')">{{ labels.reset }}</button>
+              </div>
+            </article>
+          </div>
+        </section>
 
-    <transition name="fade">
-      <div
-        v-if="showLogoutConfirm"
-        class="modal-backdrop"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="logout-modal-title"
-      >
-        <div class="alert-card">
-          <h3 id="logout-modal-title">로그아웃 하시겠습니까?</h3>
-          <p>현재 기기에서 로그아웃되며 로그인 페이지로 이동합니다.</p>
-          <div class="alert-actions">
-            <button type="button" class="alert-button alert-button--primary" @click="confirmLogout">확인</button>
-            <button type="button" class="alert-button" @click="cancelLogout">취소</button>
+        <section class="info-section">
+          <h2 class="section-title">{{ labels.extraSection }}</h2>
+          <div class="info-list">
+            <article class="info-item info-item--static">
+              <span class="info-label">{{ labels.gender }}</span>
+              <div class="info-content info-content--static">
+                <span class="info-text">{{ account.gender }}</span>
+              </div>
+            </article>
+            <article class="info-item info-item--static">
+              <span class="info-label">{{ labels.birth }}</span>
+              <div class="info-content info-content--static">
+                <span class="info-text">{{ account.birthDate }}</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <button type="button" class="logout-button" @click="requestLogout">{{ labels.logout }}</button>
+      </main>
+
+      <transition name="fade">
+        <div
+          v-if="showLogoutConfirm"
+          class="modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="logout-modal-title"
+        >
+          <div class="alert-card">
+            <h3 id="logout-modal-title">{{ labels.logoutConfirm }}</h3>
+            <p>{{ labels.logoutGuide }}</p>
+            <div class="alert-actions">
+              <button type="button" class="alert-button alert-button--primary" @click="confirmLogout">{{ labels.confirm }}</button>
+              <button type="button" class="alert-button" @click="cancelLogout">{{ labels.cancel }}</button>
+            </div>
           </div>
         </div>
-      </div>
-    </transition>
+      </transition>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { reactive, ref, computed, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
-import { computed, onBeforeUnmount, reactive, ref } from "vue";
 import arrowBackIcon from "@/assets/arrowback.png";
 
 const router = useRouter();
 
+const labels = {
+  back: "\uB9C8\uC774\uD398\uC774\uC9C0\uB85C \uB3CC\uC544\uAC00\uAE30",
+  title: "\uD504\uB85C\uD544 \uC218\uC815",
+  basicSection: "\uAE30\uBCF8 \uC815\uBCF4",
+  extraSection: "\uBD80\uAC00 \uC815\uBCF4",
+  nickname: "\uB2C9\uB124\uC784",
+  phone: "\uC804\uD654\uBC88\uD638",
+  username: "\uC544\uC774\uB514",
+  password: "\uBE44\uBC00\uBC88\uD638",
+  gender: "\uC131\uBCC4",
+  birth: "\uC0DD\uB144\uC6D4\uC77C",
+  save: "\uC800\uC7A5",
+  cancel: "\uCDE8\uC18C",
+  edit: "\uBCC0\uACBD",
+  reset: "\uC7AC\uC124\uC815",
+  copy: "\uBCF5\uC0AC",
+  logout: "\uB85C\uADF8\uC544\uC6C3",
+  logoutConfirm: "\uB85C\uADF8\uC544\uC6C3 \uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?",
+  logoutGuide: "\uD604\uC7AC \uAE30\uAE30\uC5D0\uC11C \uB85C\uADF8\uC544\uC6C3\uB418\uACE0 \uB85C\uADF8\uC778 \uD398\uC774\uC9C0\uB85C \uC774\uB3D9\uD569\uB2C8\uB2E4.",
+  confirm: "\uD655\uC778",
+  openSettings: "\uD504\uB85C\uD544 \uC218\uC815 \uD398\uC774\uC9C0\uB85C \uC774\uB3D9",
+};
+
+const placeholders = {
+  nickname: "\uC0C8 \uB2C9\uB124\uC784\uC744 \uC785\uB825\uD558\uC138\uC694",
+  phone: "010-0000-0000",
+  password: "\uC0C8 \uBE44\uBC00\uBC88\uD638\uB97C \uC785\uB825\uD558\uC138\uC694",
+  passwordConfirm: "\uBE44\uBC00\uBC88\uD638\uB97C \uD55C \uBC88 \uB354 \uC785\uB825\uD558\uC138\uC694",
+};
+
 const account = reactive({
-  nickname: "김예은",
+  nickname: "\uAE40\uC608\uC740",
   phone: "010-1234-5678",
   username: "gogotaxi_ye",
   password: "Taxi!2024",
-  gender: "여성",
+  gender: "\uC5EC\uC131",
   birthDate: "2000-08-15",
 });
 
@@ -179,7 +207,7 @@ const errors = reactive({
 const copyFeedback = ref("");
 let copyTimeout: number | null = null;
 
-const passwordMask = computed(() => "•".repeat(account.password.length));
+const passwordMask = computed(() => "*".repeat(account.password.length));
 
 const resetErrors = () => {
   errors.nickname = "";
@@ -192,14 +220,6 @@ const resetForm = () => {
   editForm.phone = "";
   editForm.password = "";
   editForm.passwordConfirm = "";
-};
-
-const resetCopyFeedback = () => {
-  if (copyTimeout) {
-    window.clearTimeout(copyTimeout);
-    copyTimeout = null;
-  }
-  copyFeedback.value = "";
 };
 
 const startEdit = (field: EditableField) => {
@@ -224,27 +244,17 @@ const cancelEdit = () => {
 const saveNickname = () => {
   const nextNickname = editForm.nickname.trim();
   if (!nextNickname) {
-    errors.nickname = "닉네임을 입력해주세요.";
-    return;
-  }
-  if (nextNickname.length < 2) {
-    errors.nickname = "닉네임은 두 글자 이상이어야 합니다.";
+    errors.nickname = "\uB2C9\uB124\uC784\uC744 \uC785\uB825\uD558\uC138\uC694.";
     return;
   }
   account.nickname = nextNickname;
   cancelEdit();
 };
 
-const phonePattern = /^01[0-9]-\d{3,4}-\d{4}$/;
-
 const savePhone = () => {
   const nextPhone = editForm.phone.trim();
   if (!nextPhone) {
-    errors.phone = "전화번호를 입력해주세요.";
-    return;
-  }
-  if (!phonePattern.test(nextPhone)) {
-    errors.phone = "010-1234-5678 형식으로 입력해주세요.";
+    errors.phone = "\uC804\uD654\uBC88\uD638\uB97C \uC785\uB825\uD558\uC138\uC694.";
     return;
   }
   account.phone = nextPhone;
@@ -254,16 +264,12 @@ const savePhone = () => {
 const savePassword = () => {
   const nextPassword = editForm.password;
   const confirmPassword = editForm.passwordConfirm;
-  if (!nextPassword || !confirmPassword) {
-    errors.password = "비밀번호와 확인 비밀번호를 모두 입력해주세요.";
-    return;
-  }
   if (nextPassword.length < 8) {
-    errors.password = "비밀번호는 8자 이상이어야 합니다.";
+    errors.password = "8\uC790 \uC774\uC0C1 \uC785\uB825\uD558\uC138\uC694.";
     return;
   }
   if (nextPassword !== confirmPassword) {
-    errors.password = "입력한 비밀번호가 일치하지 않습니다.";
+    errors.password = "\uBE44\uBC00\uBC88\uD638\uAC00 \uC77C\uCE58\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.";
     return;
   }
   account.password = nextPassword;
@@ -272,47 +278,28 @@ const savePassword = () => {
 
 const copyUsername = async () => {
   resetCopyFeedback();
-  const text = account.username;
   try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(text);
-    } else {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-    }
-    copyFeedback.value = "아이디를 복사했어요.";
-  } catch (error) {
-    console.error("copy failed", error);
-    copyFeedback.value = "복사에 실패했어요. 다시 시도해주세요.";
-  } finally {
-    if (copyTimeout) {
-      window.clearTimeout(copyTimeout);
-    }
+    await navigator.clipboard.writeText(account.username);
+    copyFeedback.value = "\uC544\uC774\uB514\uB97C \uBCF5\uC0AC\uD588\uC2B5\uB2C8\uB2E4.";
     copyTimeout = window.setTimeout(() => {
       copyFeedback.value = "";
       copyTimeout = null;
-    }, 1800);
+    }, 2000);
+  } catch (error) {
+    copyFeedback.value = "\uBCF5\uC0AC\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4.";
   }
 };
 
-onBeforeUnmount(() => {
+const resetCopyFeedback = () => {
   if (copyTimeout) {
     window.clearTimeout(copyTimeout);
+    copyTimeout = null;
   }
-});
+  copyFeedback.value = "";
+};
 
 const requestLogout = () => {
   showLogoutConfirm.value = true;
-};
-
-const goBack = () => {
-  router.back();
 };
 
 const cancelLogout = () => {
@@ -321,37 +308,42 @@ const cancelLogout = () => {
 
 const confirmLogout = () => {
   showLogoutConfirm.value = false;
-  // TODO: 실제 로그아웃 API 연동
   router.push({ name: "login" }).catch((error) => {
-    console.warn("로그아웃 후 이동 중 오류", error);
+    console.warn("\uB85C\uADF8\uC544\uC6C3 \uD6C4 \uC774\uB3D9 \uC911 \uC624\uB958", error);
   });
 };
+
+const goBack = () => {
+  router.back();
+};
+
+onBeforeUnmount(() => {
+  resetCopyFeedback();
+});
 </script>
 
 <style scoped>
 .settings-wrapper {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: #3a2e20;
-  padding: 3.5rem 1rem 3rem;
+  padding: 3.5rem 1.25rem 4rem;
   font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
-.settings-card {
-  width: min(440px, 100%);
-  background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 18px 32px rgba(238, 187, 110, 0.28);
-  padding: 2.2rem 1.6rem 2.4rem;
+.settings-container {
+  width: min(640px, 100%);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 1.8rem;
 }
 
 .settings-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 1rem;
 }
@@ -379,88 +371,88 @@ const confirmLogout = () => {
 }
 
 .settings-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #eeeff2;
+  justify-self: center;
+  text-align: center;
+}
+
+.header-spacer {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.settings-card {
+  width: 100%;
+  background: #eeeff2;
+  border-radius: 24px;
+  box-shadow: 0 18px 32px rgba(238, 187, 110, 0.22);
+  padding: 2.05rem 1.8rem 2.4rem;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 2rem;
 }
-
-.settings-title h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #2f2f33;
-}
-
-.settings-title p {
-  margin: 0.5rem 0 0;
-  font-size: 0.95rem;
-  color: #6a6a6f;
-  line-height: 1.5;
-}
-
 
 .info-section {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 1.35rem;
 }
 
 .section-title {
-  font-size: 1.05rem;
+  font-size: 1.06rem;
   font-weight: 700;
-  color: #413e48;
+  color: #3f3d48;
   margin: 0;
 }
 
 .info-list {
-  background: linear-gradient(135deg, #fff6de 0%, #ffe9c6 100%);
+  background: #eeeff2;
   border-radius: 18px;
-  box-shadow: 0 12px 20px rgba(244, 193, 122, 0.16);
-  padding: 0.4rem 0.75rem;
+  box-shadow: 0 12px 20px rgba(237, 173, 98, 0.12);
+  border: 1px solid rgba(47, 47, 51, 0.05);
+  padding: 1.4rem 1.4rem 1.5rem;
   display: flex;
   flex-direction: column;
+  gap: 1.35rem;
 }
 
 .info-item {
-  padding: 0.8rem 0.35rem;
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
-}
-
-.info-item:last-of-type {
-  border-bottom: none;
-}
-
-.info-item--editing {
-  background: rgba(255, 241, 216, 0.55);
-  border-radius: 14px;
-  padding: 0.85rem 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.1rem;
+  font-size: 0.98rem;
+  color: #2f2f33;
+  padding: 0.35rem 0;
 }
 
 .info-label {
-  flex: 0 0 88px;
-  font-size: 0.95rem;
+  flex-basis: 95px;
   font-weight: 600;
-  color: #66616c;
-  line-height: 1.6;
+  color: #5d5a66;
 }
 
 .info-content {
   flex: 1;
-  min-width: 0;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  font-size: 0.98rem;
-  color: #2f2f33;
+  align-items: center;
+  gap: 1rem;
+}
+
+.info-content--static {
+  justify-content: flex-end;
 }
 
 .info-text {
   flex: 1;
-  text-align: left;
+  text-align: right;
+  font-weight: 700;
+  color: #2f2f33;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -471,9 +463,9 @@ const confirmLogout = () => {
   border-radius: 999px;
   background: #fdd651;
   color: #4e2d04;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 0.35rem 0.75rem;
+  padding: 0.4rem 0.85rem;
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
@@ -494,25 +486,24 @@ const confirmLogout = () => {
   outline-offset: 2px;
 }
 
-.copy-feedback {
-  margin: -0.5rem 0 0.5rem;
-  font-size: 0.82rem;
-  color: #a0641b;
-  text-align: right;
+.info-item--editing {
+  background: rgba(255, 241, 216, 0.6);
+  border-radius: 14px;
+  padding: 1rem 0.75rem;
 }
 
 .info-editor {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.85rem;
 }
 
 .info-input {
   width: 100%;
   border: 1px solid rgba(203, 128, 38, 0.3);
   border-radius: 10px;
-  padding: 0.55rem 0.75rem;
+  padding: 0.6rem 0.75rem;
   font-size: 0.95rem;
   background: #fff;
   color: #2f2f33;
@@ -526,14 +517,14 @@ const confirmLogout = () => {
 }
 
 .info-error {
-  margin: -0.3rem 0 0;
+  margin: -0.35rem 0 0;
   font-size: 0.82rem;
   color: #d64545;
 }
 
 .editor-actions {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.75rem;
 }
 
 .editor-button {
@@ -586,6 +577,13 @@ const confirmLogout = () => {
 .logout-button:focus-visible {
   outline: 3px solid rgba(255, 119, 95, 0.45);
   outline-offset: 3px;
+}
+
+.copy-feedback {
+  margin: -0.35rem 0 0.35rem;
+  font-size: 0.82rem;
+  color: #a0641b;
+  text-align: right;
 }
 
 .fade-enter-active,
@@ -685,7 +683,7 @@ const confirmLogout = () => {
   }
 
   .info-label {
-    flex-basis: 72px;
+    flex-basis: 74px;
     font-size: 0.92rem;
   }
 
@@ -704,13 +702,16 @@ const confirmLogout = () => {
     padding: 4.5rem 2rem;
   }
 
+  .settings-container {
+    width: min(640px, 100%);
+  }
+
   .settings-card {
-    width: min(540px, 100%);
-    padding: 2.6rem 2.4rem 2.6rem;
+    padding: 2.6rem 2.4rem 2.7rem;
   }
 
   .info-label {
-    flex-basis: 96px;
+    flex-basis: 102px;
   }
 }
 </style>

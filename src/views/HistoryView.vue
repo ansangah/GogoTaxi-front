@@ -1,58 +1,57 @@
 <template>
   <div class="history-wrapper">
-    <header class="history-header">
-      <button type="button" class="back-button" @click="goBack" aria-label="마이페이지로 돌아가기">
-        <img :src="arrowBackIcon" alt="" class="back-icon" aria-hidden="true" />
-      </button>
-      <h1>이용 기록</h1>
-    </header>
+    <div class="history-container">
+      <header class="history-header">
+        <button type="button" class="back-button" @click="goBack" :aria-label="labels.back">
+          <img :src="arrowBackIcon" alt="" class="back-icon" aria-hidden="true" />
+        </button>
+        <h1 class="history-title">{{ labels.title }}</h1>
+        <span class="header-spacer" aria-hidden="true"></span>
+      </header>
 
-    <main class="history-content">
-      <section
-        v-for="ride in rides"
-        :key="ride.id"
-        class="history-card"
-      >
-        <header class="card-header">
-          <div class="ride-meta">
-            <span class="ride-icon">🚕</span>
-            <div>
-              <h2>택시</h2>
-              <p class="ride-date">{{ ride.date }}</p>
+      <main class="history-list">
+        <section v-for="ride in rides" :key="ride.id" class="history-card">
+          <header class="card-header">
+            <div class="ride-meta">
+              <span class="ride-icon" aria-hidden="true">&#128661;</span>
+              <div>
+                <h2>{{ labels.rideType }}</h2>
+                <p class="ride-date">{{ ride.date }}</p>
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <dl class="ride-details">
-          <div class="ride-row">
-            <dt>운행 시간</dt>
-            <dd>{{ ride.time }}</dd>
-          </div>
-          <div class="ride-row">
-            <dt>출발</dt>
-            <dd>{{ ride.origin }}</dd>
-          </div>
-          <div class="ride-row">
-            <dt>도착</dt>
-            <dd>{{ ride.destination }}</dd>
-          </div>
-          <div class="ride-row total">
-            <dt>금액</dt>
-            <dd>{{ ride.fare }}</dd>
-          </div>
-        </dl>
+          <dl class="ride-details">
+            <div class="ride-row">
+              <dt>{{ labels.duration }}</dt>
+              <dd>{{ ride.time }}</dd>
+            </div>
+            <div class="ride-row">
+              <dt>{{ labels.origin }}</dt>
+              <dd>{{ ride.origin }}</dd>
+            </div>
+            <div class="ride-row">
+              <dt>{{ labels.destination }}</dt>
+              <dd>{{ ride.destination }}</dd>
+            </div>
+            <div class="ride-row total">
+              <dt>{{ labels.fare }}</dt>
+              <dd>{{ ride.fare }}</dd>
+            </div>
+          </dl>
 
-        <div class="card-actions">
-          <button
-            type="button"
-            class="action-button action-button--primary"
-            @click="goToReview(ride.id)"
-          >
-            평가하기
-          </button>
-        </div>
-      </section>
-    </main>
+          <div class="card-actions">
+            <button
+              type="button"
+              class="action-button action-button--primary"
+              @click="goToReview(ride.id)"
+            >
+              {{ labels.review }}
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -62,30 +61,41 @@ import arrowBackIcon from "@/assets/arrowback.png";
 
 const router = useRouter();
 
+const labels = {
+  back: "\uB9C8\uC774\uD398\uC774\uC9C0\uB85C \uB3CC\uC544\uAC00\uAE30",
+  title: "\uC774\uC6A9 \uAE30\uB85D",
+  rideType: "\uD0DD\uC2DC",
+  duration: "\uC6B4\uD589 \uC2DC\uAC04",
+  origin: "\uCD9C\uBC1C",
+  destination: "\uB3C4\uCC29",
+  fare: "\uAE08\uC561",
+  review: "\uD3C9\uAC00\uD558\uAE30",
+};
+
 const rides = [
   {
     id: 1,
-    date: "25.xx.xx (월)",
+    date: "25.xx.xx (\uC6D4)",
     time: "13:21 - 13:29",
-    origin: "출발지",
-    destination: "도착지",
-    fare: "5,700원",
+    origin: "\uCD9C\uBC1C\uC9C0",
+    destination: "\uB3C4\uCC29\uC9C0",
+    fare: "5,700\uC6D0",
   },
   {
     id: 2,
-    date: "25.10.14 (월)",
+    date: "25.10.14 (\uC6D4)",
     time: "07:10 - 07:17",
-    origin: "전북대학교 전주캠퍼스 창의관",
-    destination: "전주시외버스공용터미널",
-    fare: "5,000원",
+    origin: "\uC804\uBD81\uB300 \uC804\uC8FC\uCE74\uD398\uC2A4 \uCC3D\uC758\uAD00",
+    destination: "\uC804\uC8FC\uC2DC\uC678\uBC84\uC2A4\uACF5\uC6A9\uD130\uBBF8\uB110",
+    fare: "5,000\uC6D0",
   },
   {
     id: 3,
-    date: "25.10.06 (일)",
+    date: "25.10.06 (\uC77C)",
     time: "10:23 - 10:30",
-    origin: "전북대학교 한울관",
-    destination: "전주역 서부광장",
-    fare: "6,200원",
+    origin: "\uC804\uBD81\uB300 \uD55C\uC6B8\uAD00",
+    destination: "\uC804\uC8FC\uC5ED \uC11C\uBD80\uAD11\uC7A5",
+    fare: "6,200\uC6D0",
   },
 ];
 
@@ -94,9 +104,11 @@ const goBack = () => {
 };
 
 const goToReview = (rideId: number) => {
-  router.push({ name: "ride-review", query: { rideId } }).catch((error) => {
-    console.warn("리뷰 페이지 이동 중 오류", error);
-  });
+  router
+    .push({ name: "ride-review", query: { rideId } })
+    .catch((error) => {
+      console.warn("\uB9AC\uBDF0 \uD398\uC774\uC9C0 \uC774\uB3D9 \uC911 \uC624\uB958", error);
+    });
 };
 </script>
 
@@ -105,23 +117,40 @@ const goToReview = (rideId: number) => {
   min-height: 100vh;
   background: #3a2e20;
   font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
-  padding: 3.5rem 1.25rem 2.5rem;
+  padding: 3.5rem 1.25rem 4rem;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.history-container {
+  width: min(640px, 100%);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.8rem;
 }
 
 .history-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 1rem;
 }
 
-.history-header h1 {
+.history-title {
   margin: 0;
   font-size: 1.35rem;
   font-weight: 700;
   color: #eeeff2;
+  justify-self: center;
+  text-align: center;
+}
+
+.header-spacer {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .back-button {
@@ -146,20 +175,20 @@ const goToReview = (rideId: number) => {
   object-fit: contain;
 }
 
-.history-content {
+.history-list {
   display: flex;
   flex-direction: column;
-  gap: 1.4rem;
+  gap: 1.5rem;
 }
 
 .history-card {
   background: #eeeff2;
   border-radius: 20px;
-  padding: 1.4rem 1.3rem 1.25rem;
-  box-shadow: 0 18px 32px rgba(233, 184, 116, 0.22);
+  padding: 1.5rem 1.45rem 1.3rem;
+  box-shadow: 0 18px 32px rgba(233, 184, 116, 0.2);
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 1.2rem;
 }
 
 .card-header {
@@ -171,11 +200,11 @@ const goToReview = (rideId: number) => {
 .ride-meta {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.95rem;
 }
 
 .ride-icon {
-  font-size: 1.6rem;
+  font-size: 1.7rem;
 }
 
 .ride-meta h2 {
@@ -271,3 +300,4 @@ const goToReview = (rideId: number) => {
   }
 }
 </style>
+

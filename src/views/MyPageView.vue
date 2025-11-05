@@ -1,35 +1,34 @@
 <template>
   <div class="mypage-wrapper">
-    <div class="mypage-content">
-      <section class="profile-summary">
-        <div class="profile-avatar">
-          <img :src="profileImage" alt="프로필 이미지" />
+    <div class="page-container">
+      <section class="profile-block">
+        <div class="avatar">
+          <img :src="profileImage" alt="profile image" />
         </div>
-        <div class="profile-details">
-          <span class="profile-name">{{ user.nickname }}</span>
-          <span v-if="user.phone" class="profile-meta">{{ user.phone }}</span>
-          <span v-else class="profile-meta">GoGoTaxi 회원</span>
+        <div class="profile-info">
+          <span class="profile-name">{{ displayNickname }}</span>
+          <span class="profile-meta">{{ displayPhone }}</span>
         </div>
         <button type="button" class="edit-button" @click="openProfileSettings">
-          <span class="sr-only">프로필 수정 페이지 이동</span>
+          <span class="sr-only">{{ labels.openSettings }}</span>
           <img :src="editIcon" alt="" class="edit-icon" aria-hidden="true" />
         </button>
       </section>
 
-      <section class="menu-section">
-        <h2 class="section-title">바로가기</h2>
+      <section class="menu-block">
+        <h2 class="menu-title">{{ labels.quickMenu }}</h2>
         <nav class="menu-list">
           <button type="button" class="menu-item" @click="goTo('history')">
-            <span class="menu-item-label">이용 기록</span>
-            <span class="menu-item-arrow" aria-hidden="true">&gt;</span>
+            <span class="menu-label">{{ labels.history }}</span>
+            <span class="menu-arrow" aria-hidden="true">&rsaquo;</span>
           </button>
           <button type="button" class="menu-item" @click="goTo('payment')">
-            <span class="menu-item-label">결제 수단 관리</span>
-            <span class="menu-item-arrow" aria-hidden="true">&gt;</span>
+            <span class="menu-label">{{ labels.payment }}</span>
+            <span class="menu-arrow" aria-hidden="true">&rsaquo;</span>
           </button>
           <button type="button" class="menu-item" @click="goTo('notice')">
-            <span class="menu-item-label">공지사항</span>
-            <span class="menu-item-arrow" aria-hidden="true">&gt;</span>
+            <span class="menu-label">{{ labels.notice }}</span>
+            <span class="menu-arrow" aria-hidden="true">&rsaquo;</span>
           </button>
         </nav>
       </section>
@@ -38,17 +37,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import editIcon from "@/assets/edit.png";
 import profileImage from "@/assets/user.png";
 
 const router = useRouter();
 
+const labels = {
+  quickMenu: "\uBC14\uB85C\uAC00\uAE30",
+  history: "\uC774\uC6A9 \uAE30\uB85D",
+  payment: "\uACB0\uC81C \uC218\uB2E8 \uAD00\uB9AC",
+  notice: "\uACF5\uC9C0\uC0AC\uD56D",
+  noNickname: "\uB2C9\uB124\uC784 \uBBF8\uB4F1\uB85D",
+  noPhone: "\uC5F0\uB77D\uCC98 \uBBF8\uB4F1\uB85D",
+  openSettings: "\uD504\uB85C\uD544 \uC218\uC815 \uD398\uC774\uC9C0 \uC774\uB3D9",
+};
+
 const user = ref({
-  gender: "female",
-  nickname: "김예은",
+  nickname: "\uAE40\uC608\uC740",
   phone: "010-1234-5678",
+});
+
+const displayNickname = computed(() => {
+  const nickname = user.value.nickname?.trim();
+  return nickname?.length ? nickname : labels.noNickname;
+});
+
+const displayPhone = computed(() => {
+  const phone = user.value.phone?.trim();
+  return phone?.length ? phone : labels.noPhone;
 });
 
 const routeNameMap: Record<string, string> = {
@@ -59,12 +77,7 @@ const routeNameMap: Record<string, string> = {
 
 const goTo = (page: string) => {
   const routeName = routeNameMap[page];
-
-  if (!routeName) {
-    console.warn(`Unknown MyPage destination: ${page}`);
-    return;
-  }
-
+  if (!routeName) return;
   router.push({ name: routeName });
 };
 
@@ -77,11 +90,14 @@ const openProfileSettings = () => {
 .mypage-wrapper {
   min-height: 100vh;
   background: #3a2e20;
-  padding: 4rem 1.25rem 4.5rem;
+  padding: 3.5rem 1.25rem 4rem;
   font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
-.mypage-content {
+.page-container {
   width: min(640px, 100%);
   margin: 0 auto;
   display: flex;
@@ -89,17 +105,17 @@ const openProfileSettings = () => {
   gap: 1.75rem;
 }
 
-.profile-summary {
+.profile-block {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: 1.7rem 1.6rem;
+  gap: 1.45rem;
+  padding: 1.55rem 1.5rem;
   background: #eeeff2;
   border-radius: 28px;
   box-shadow: 0 24px 40px rgba(237, 173, 98, 0.18);
 }
 
-.profile-avatar {
+.avatar {
   width: 84px;
   height: 84px;
   border-radius: 50%;
@@ -108,59 +124,47 @@ const openProfileSettings = () => {
   place-items: center;
   box-shadow: inset 0 0 0 3px #fff;
   flex-shrink: 0;
-  border: 3px solid #fdd651;
 }
 
-.profile-avatar img {
+.avatar img {
   width: 68px;
   height: 68px;
   border-radius: 50%;
   object-fit: cover;
   background: #fff7e3;
-  border: 3px solid #fff;
 }
 
-.profile-details {
+.profile-info {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.4rem;
   justify-content: center;
-  flex: 1;
+  min-height: 84px;
 }
 
 .profile-name {
-  font-size: 1.35rem;
+  font-size: 1.42rem;
   font-weight: 700;
-  color: #2f2f33;
+  color: #2b2113;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .profile-meta {
-  font-size: 0.96rem;
-  color: #6d6d73;
+  font-size: 1rem;
+  color: #574f48;
+  line-height: 1.15;
 }
 
 .edit-button {
+  margin-left: auto;
   border: none;
   background: transparent;
   padding: 4px;
-  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  align-self: center;
-  margin-left: auto;
-}
-
-.edit-icon {
-  width: 26px;
-  height: 26px;
-  object-fit: contain;
-  transition: transform 0.18s ease;
-}
-
-.edit-button:hover .edit-icon,
-.edit-button:focus-visible .edit-icon {
-  transform: scale(1.05);
+  cursor: pointer;
 }
 
 .edit-button:focus-visible {
@@ -169,17 +173,27 @@ const openProfileSettings = () => {
   outline-offset: 3px;
 }
 
-.menu-section {
+.edit-icon {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.18s ease;
+}
+
+.edit-button:hover .edit-icon {
+  transform: scale(1.05);
+}
+
+.menu-block {
   background: #eeeff2;
   border-radius: 28px;
   box-shadow: 0 22px 44px rgba(237, 173, 98, 0.16);
-  padding: 1.25rem 1.2rem 1.5rem;
+  padding: 1.35rem 1.25rem 1.6rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
-.section-title {
+.menu-title {
   margin: 0;
   font-size: 1.08rem;
   font-weight: 700;
@@ -189,7 +203,7 @@ const openProfileSettings = () => {
 .menu-list {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.9rem;
 }
 
 .menu-item {
@@ -219,14 +233,9 @@ const openProfileSettings = () => {
   outline-offset: 3px;
 }
 
-.menu-item-label {
-  flex: 1;
-  text-align: left;
-}
-
-.menu-item-arrow {
-  font-size: 1.2rem;
-  color: #a76c16;
+.menu-arrow {
+  font-size: 1.25rem;
+  color: #2f2f33;
   margin-left: 0.75rem;
 }
 
@@ -242,30 +251,26 @@ const openProfileSettings = () => {
 }
 
 @media (max-width: 480px) {
-  .mypage-wrapper {
-    padding: 3.2rem 1rem 3.5rem;
-  }
-
-  .profile-summary {
+  .profile-block {
     flex-direction: column;
     align-items: stretch;
     gap: 1.1rem;
+    text-align: center;
   }
 
-  .profile-avatar {
+  .avatar {
     width: 74px;
     height: 74px;
     align-self: center;
   }
 
-  .profile-avatar img {
+  .avatar img {
     width: 60px;
     height: 60px;
   }
 
-  .profile-details {
-    align-items: center;
-    text-align: center;
+  .profile-info {
+    min-height: auto;
   }
 
   .edit-button {
@@ -276,7 +281,7 @@ const openProfileSettings = () => {
 
 @media (min-width: 768px) {
   .mypage-wrapper {
-    padding: 5rem 2rem 5rem;
+    padding: 4.5rem 2rem 4.5rem;
   }
 
   .profile-name {
