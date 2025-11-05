@@ -1,10 +1,7 @@
 <template>
   <section class="find-room">
     <div class="map-area">
-      <div class="map-placeholder">
-        <strong>지도 영역</strong>
-        <p>실제 지도 컴포넌트가 들어갈 자리입니다.</p>
-      </div>
+      <RoomMap :rooms="rooms" :selected-room="selectedRoom" />
     </div>
 
     <section
@@ -29,7 +26,13 @@
       </header>
 
       <div class="sheet__list">
-        <article v-for="room in rooms" :key="room.id" class="room-card">
+        <article
+          v-for="room in rooms"
+          :key="room.id"
+          class="room-card"
+          :class="{ 'room-card--active': selectedRoom?.id === room.id }"
+          @click="selectRoom(room)"
+        >
           <header class="room-card__header">
             <h2>{{ room.title }}</h2>
             <span class="room-card__seats">{{ room.seats }}자리 남음</span>
@@ -37,7 +40,11 @@
           <dl class="room-card__meta">
             <div>
               <dt>출발지</dt>
-              <dd>{{ room.departure }}</dd>
+              <dd>{{ room.departure.label }}</dd>
+            </div>
+            <div>
+              <dt>도착지</dt>
+              <dd>{{ room.arrival.label }}</dd>
             </div>
             <div>
               <dt>출발 시간</dt>
@@ -55,15 +62,8 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
-
-type RoomPreview = {
-  id: string
-  title: string
-  departure: string
-  time: string
-  seats: number
-  tags: string[]
-}
+import RoomMap from '@/components/RoomMap.vue'
+import type { RoomPreview } from '@/types/rooms'
 
 const MIN_SHEET = 60
 const MAX_SHEET = 100
@@ -73,7 +73,14 @@ const rooms = ref<RoomPreview[]>([
   {
     id: 'room-101',
     title: '강남역 → 인천공항 새벽 합승',
-    departure: '강남역 5번 출구',
+    departure: {
+      label: '강남역 5번 출구',
+      position: { lat: 37.498095, lng: 127.02761 },
+    },
+    arrival: {
+      label: '인천국제공항 제1터미널',
+      position: { lat: 37.4602, lng: 126.4407 },
+    },
     time: '오늘 23:30 출발',
     seats: 2,
     tags: ['야간', '공항', '편안한 분위기'],
@@ -81,7 +88,14 @@ const rooms = ref<RoomPreview[]>([
   {
     id: 'room-102',
     title: '신촌역 → 수원역 아침 출근',
-    departure: '신촌역 2번 출구 앞',
+    departure: {
+      label: '신촌역 2번 출구',
+      position: { lat: 37.55515, lng: 126.9368 },
+    },
+    arrival: {
+      label: '수원역 AK플라자 앞',
+      position: { lat: 37.2664, lng: 126.9997 },
+    },
     time: '내일 07:10 출발',
     seats: 1,
     tags: ['출근', '정시출발'],
@@ -89,7 +103,14 @@ const rooms = ref<RoomPreview[]>([
   {
     id: 'room-103',
     title: '홍대입구역 → 판교역',
-    departure: '홍대입구역 9번 출구',
+    departure: {
+      label: '홍대입구역 9번 출구',
+      position: { lat: 37.5575, lng: 126.9242 },
+    },
+    arrival: {
+      label: '판교역 2번 출구',
+      position: { lat: 37.3948, lng: 127.1109 },
+    },
     time: '오늘 20:00 출발',
     seats: 3,
     tags: ['직장인', '음악조용히', '비흡연'],
@@ -97,7 +118,14 @@ const rooms = ref<RoomPreview[]>([
   {
     id: 'room-104',
     title: '부산 서면 → 해운대 야간',
-    departure: '서면역 7번 출구 택시승강장',
+    departure: {
+      label: '서면역 7번 출구 택시승강장',
+      position: { lat: 35.1576, lng: 129.0593 },
+    },
+    arrival: {
+      label: '해운대 해수욕장 입구',
+      position: { lat: 35.1587, lng: 129.1604 },
+    },
     time: '오늘 22:10 출발',
     seats: 1,
     tags: ['야경투어', '편안한 분위기'],
@@ -106,6 +134,7 @@ const rooms = ref<RoomPreview[]>([
 
 const sheetHeight = ref<number>(MIN_SHEET)
 const isDragging = ref(false)
+const selectedRoom = ref<RoomPreview | null>(null)
 
 let startY = 0
 let startHeight = MIN_SHEET
@@ -157,6 +186,10 @@ function toggleSheet() {
   sheetHeight.value = sheetHeight.value === MAX_SHEET ? MIN_SHEET : MAX_SHEET
 }
 
+function selectRoom(room: RoomPreview) {
+  selectedRoom.value = selectedRoom.value?.id === room.id ? null : room
+}
+
 onBeforeUnmount(() => {
   window.removeEventListener('pointermove', onPointerMove)
   window.removeEventListener('pointerup', onPointerUp)
@@ -176,20 +209,7 @@ onBeforeUnmount(() => {
 .map-area {
   position: absolute;
   inset: 0;
-  background: #ddeafc;
-}
-
-.map-placeholder {
-  position: absolute;
-  inset: clamp(24px, 6vw, 60px);
-  border-radius: 24px;
-  background: linear-gradient(135deg, #2563eb, #60a5fa);
-  color: #fff;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  gap: 8px;
-  box-shadow: 0 18px 36px rgba(37, 99, 235, 0.28);
+  z-index: 0;
 }
 
 .sheet {
@@ -204,6 +224,7 @@ onBeforeUnmount(() => {
   transition: height 0.3s ease, border-radius 0.3s ease, box-shadow 0.3s ease;
   will-change: height;
   touch-action: none;
+  z-index: 1;
 }
 
 .sheet--expanded {
@@ -284,6 +305,19 @@ onBeforeUnmount(() => {
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
   display: grid;
   gap: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+}
+
+.room-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.14);
+}
+
+.room-card--active {
+  border-color: rgba(37, 99, 235, 0.4);
+  box-shadow: 0 20px 40px rgba(37, 99, 235, 0.18);
+  background: rgba(219, 234, 254, 0.9);
 }
 
 .room-card__header {
