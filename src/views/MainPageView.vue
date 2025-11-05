@@ -124,10 +124,6 @@
               <ellipse class="map-water" cx="520" cy="220" rx="58" ry="34" />
               <ellipse class="map-water" cx="265" cy="260" rx="32" ry="20" />
 
-              <rect class="map-building" x="360" y="280" width="40" height="26" rx="6" />
-              <rect class="map-building" x="455" y="340" width="42" height="28" rx="6" />
-              <rect class="map-building" x="305" y="365" width="32" height="24" rx="6" />
-
               <g
                 class="menu-point menu-point--make"
                 role="button"
@@ -282,7 +278,7 @@ function goLatestNotice() {
 
 .main {
   min-height: calc(100dvh - var(--tab-h));
-  padding-bottom: var(--tab-h);
+  padding-bottom: 0;
   background: linear-gradient(180deg, #3c2919 0%, #3c2919 60vh, #f6f2e8 100%);
 }
 
@@ -403,11 +399,6 @@ function goLatestNotice() {
   stroke: #4fa1c7;
   stroke-width: 4;
   opacity: 0.9;
-}
-.map-building {
-  fill: #fdf1c2;
-  stroke: #bd8a27;
-  stroke-width: 3;
 }
 .menu-point {
   cursor: pointer;

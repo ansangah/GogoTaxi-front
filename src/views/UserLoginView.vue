@@ -3,7 +3,7 @@
     <div class="card">
       <!-- 상단 로고 -->
       <div class="logo">
-        <img src="@/assets/logo_my.png" alt="택시 로고" class="logo-img" />
+        <img src="@/assets/logo_my.png" alt="고고택시 로고" class="logo-img" />
       </div>
       <h1 class="title">로그인</h1>
 
@@ -80,7 +80,7 @@ function resolveRedirect() {
 
 async function login() {
   if (!id.value || !pw.value) {
-    alert('아이디와 비밀번호를 입력해주세요.')
+    alert('아이디와 비밀번호를 입력해 주세요.')
     return
   }
   try {
@@ -94,24 +94,37 @@ async function login() {
 
 async function kakaoLogin() {
   try {
+    const redirect = resolveRedirect()
     const profile = await loginWithKakao()
-    socialLogin('kakao', profile)
-    router.push(resolveRedirect())
+    const result = socialLogin('kakao', profile, { redirect })
+    if (result.status === 'needs_terms') {
+      router.push({ name: 'social-consent' })
+      return
+    }
+    router.push(redirect)
   } catch (err: unknown) {
     console.error(err)
-    const msg = err instanceof Error ? err.message : '카카오 로그인에 실패했습니다. 다시 시도해주세요.'
+    const msg =
+      err instanceof Error
+        ? err.message
+        : '카카오 로그인이 실패했어요. 다시 시도해 주세요.'
     alert(msg)
   }
 }
 
 async function googleLogin() {
   try {
+    const redirect = resolveRedirect()
     const { code } = await loginWithGoogle()
-    // TODO: 서버에 code를 전달해 토큰 교환 및 사용자 정보 조회
-    socialLogin('google', { id: code, name: 'Google 사용자' })
-    router.push(resolveRedirect())
+    // TODO: code를 서버에 전달해 토큰 교환 및 사용자 정보 조회 구현
+    const result = socialLogin('google', { id: code, name: 'Google 사용자' }, { redirect })
+    if (result.status === 'needs_terms') {
+      router.push({ name: 'social-consent' })
+      return
+    }
+    router.push(redirect)
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Google 로그인에 실패했습니다.'
+    const msg = err instanceof Error ? err.message : 'Google 로그인에 실패했어요.'
     alert(msg)
   }
 }
@@ -119,7 +132,7 @@ async function googleLogin() {
 
 <style scoped>
 .auth-wrap {
-  min-height: calc(100vh - var(--tab-h, 64px));
+  min-height: calc(100vh - var(--header-h, 56px));
   display: grid;
   place-items: start center;
   padding: 32px 16px;
