@@ -438,6 +438,12 @@ const submitPassword = () => {
   gap: 1.5rem;
 }
 
+.payment-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .payment-header {
   display: flex;
   align-items: center;
