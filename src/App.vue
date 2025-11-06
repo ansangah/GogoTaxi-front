@@ -35,8 +35,14 @@ const hideBottomTab = computed(() => {
 :root { --header-h: 56px; --tab-h: 64px; }
 * { box-sizing: border-box; }
 html, body, #app { height: 100%; margin: 0; }
+/* 전역 스크롤바 숨김 */
+::-webkit-scrollbar { display: none; }
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
 
-.app-shell { position: relative; min-height: 100%; background: #fff; }
+.app-shell { position: relative; min-height: 100%; background: #3a2e20; }
 .app-content {
   padding-top: var(--header-h);
   padding-bottom: var(--tab-h); /* 기본값(탭 보일 때) */
