@@ -6,8 +6,12 @@
 
     <section
       class="sheet"
-      :class="{ 'sheet--dragging': isDragging, 'sheet--expanded': sheetHeight === MAX_SHEET }"
-      :style="{ height: `${sheetHeight}vh` }"
+      :class="{
+        'sheet--dragging': isDragging,
+        'sheet--expanded': sheetHeight === MAX_SHEET,
+        'sheet--collapsed': isCollapsed,
+      }"
+      :style="sheetStyle"
     >
       <header
         class="sheet__header"
@@ -25,7 +29,10 @@
         </button>
       </header>
 
-      <div class="sheet__list">
+      <div
+        class="sheet__list"
+        :class="{ 'sheet__list--collapsed': isCollapsed }"
+      >
         <article
           v-for="room in rooms"
           :key="room.id"
@@ -61,13 +68,15 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import RoomMap from '@/components/RoomMap.vue'
 import type { RoomPreview } from '@/types/rooms'
 
-const MIN_SHEET = 60
+const COLLAPSED_SHEET = 22
+const MID_SHEET = 60
 const MAX_SHEET = 100
-const SNAP_THRESHOLD = 80
+const SHEET_STATES = [COLLAPSED_SHEET, MID_SHEET, MAX_SHEET] as const
+const SNAP_THRESHOLD = 6
 
 const rooms = ref<RoomPreview[]>([
   {
@@ -132,15 +141,39 @@ const rooms = ref<RoomPreview[]>([
   },
 ])
 
-const sheetHeight = ref<number>(MIN_SHEET)
+const sheetHeight = ref<number>(MID_SHEET)
 const isDragging = ref(false)
 const selectedRoom = ref<RoomPreview | null>(null)
+const isCollapsed = computed(() => !isDragging.value && sheetHeight.value === COLLAPSED_SHEET)
+const sheetStyle = computed(() =>
+  isCollapsed.value
+    ? { height: 'auto', minHeight: '140px' }
+    : { height: `${sheetHeight.value}vh` },
+)
 
 let startY = 0
-let startHeight = MIN_SHEET
+let startHeight = MID_SHEET
 
 function clamp(value: number) {
-  return Math.min(MAX_SHEET, Math.max(MIN_SHEET, value))
+  return Math.min(MAX_SHEET, Math.max(COLLAPSED_SHEET, value))
+}
+
+function closestStateIndex(value: number) {
+  let nearestIndex = 0
+  let minDiff = Number.POSITIVE_INFINITY
+  SHEET_STATES.forEach((state, idx) => {
+    const diff = Math.abs(state - value)
+    if (diff < minDiff) {
+      minDiff = diff
+      nearestIndex = idx
+    }
+  })
+  return nearestIndex
+}
+
+function stateValueAt(index: number) {
+  const clampedIndex = Math.min(SHEET_STATES.length - 1, Math.max(0, index))
+  return SHEET_STATES[clampedIndex] ?? MID_SHEET
 }
 
 function onPointerDown(event: PointerEvent) {
@@ -168,7 +201,26 @@ function finishDrag() {
   window.removeEventListener('pointerup', onPointerUp)
   window.removeEventListener('pointercancel', onPointerCancel)
 
-  sheetHeight.value = sheetHeight.value > SNAP_THRESHOLD ? MAX_SHEET : MIN_SHEET
+  const clamped = clamp(sheetHeight.value)
+  sheetHeight.value = clamped
+  const delta = clamped - startHeight
+  const absDelta = Math.abs(delta)
+
+  if (absDelta < SNAP_THRESHOLD) {
+    sheetHeight.value = stateValueAt(closestStateIndex(startHeight))
+    return
+  }
+
+  const startIdx = closestStateIndex(startHeight)
+  const targetIdx = closestStateIndex(clamped)
+
+  if (targetIdx === startIdx && absDelta >= SNAP_THRESHOLD) {
+    const direction = delta > 0 ? 1 : -1
+    sheetHeight.value = stateValueAt(startIdx + direction)
+    return
+  }
+
+  sheetHeight.value = stateValueAt(targetIdx)
 }
 
 function onPointerUp(event: PointerEvent) {
@@ -183,7 +235,7 @@ function onPointerCancel() {
 }
 
 function toggleSheet() {
-  sheetHeight.value = sheetHeight.value === MAX_SHEET ? MIN_SHEET : MAX_SHEET
+  sheetHeight.value = sheetHeight.value === MAX_SHEET ? MID_SHEET : MAX_SHEET
 }
 
 function selectRoom(room: RoomPreview) {
@@ -227,18 +279,25 @@ onBeforeUnmount(() => {
   z-index: 1;
 }
 
+.sheet--collapsed {
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -18px 40px rgba(15, 23, 42, 0.12);
+}
+
 .sheet--dragging {
   transition: none;
 }
 
 .sheet__header {
   position: relative;
-  padding: clamp(14px, 3vw, 18px) clamp(18px, 4vw, 28px) clamp(12px, 2.8vw, 16px);
+  padding: clamp(12px, 2.6vw, 16px) clamp(18px, 4vw, 26px) clamp(10px, 2.4vw, 14px);
   display: flex;
   align-items: center;
-  gap: clamp(14px, 4vw, 22px);
+  justify-content: space-between;
+  gap: clamp(12px, 3.6vw, 18px);
   cursor: grab;
   user-select: none;
+  flex-wrap: wrap;
 }
 
 .sheet__header:active {
@@ -257,14 +316,15 @@ onBeforeUnmount(() => {
 }
 
 .sheet__header h1 {
-  margin: 4px 0 2px;
-  font-size: clamp(16px, 3.6vw, 20px);
+  margin: 4px 0 0;
+  font-size: clamp(16px, 3.4vw, 20px);
 }
 
 .sheet__header p {
   margin: 0;
   color: #6b7280;
   font-size: 13px;
+  line-height: 1.35;
 }
 
 .sheet__toggle {
@@ -288,14 +348,24 @@ onBeforeUnmount(() => {
 .sheet__list {
   flex: 1;
   overflow-y: auto;
-  padding: 0 clamp(18px, 4vw, 28px) clamp(20px, 4vw, 30px);
+  padding: clamp(6px, 1.6vw, 10px) clamp(18px, 4vw, 26px) clamp(18px, 3.6vw, 26px);
   display: grid;
-  gap: clamp(16px, 3vw, 22px);
+  gap: clamp(12px, 2.6vw, 18px);
+}
+
+.sheet__list--collapsed {
+  max-height: clamp(96px, 22vh, 140px);
+  padding-bottom: clamp(10px, 2.4vw, 16px);
+  margin-top: clamp(6px, 1.8vw, 10px);
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0));
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 1) 60%, rgba(0, 0, 0, 0));
 }
 
 .room-card {
-  padding: clamp(18px, 4vw, 24px);
-  border-radius: 22px;
+  padding: clamp(16px, 3.4vw, 20px) clamp(16px, 3.4vw, 22px);
+  border-radius: 20px;
   border: 1px solid rgba(37, 99, 235, 0.14);
   background: rgba(248, 250, 255, 0.86);
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);

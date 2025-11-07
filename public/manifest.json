@@ -1,0 +1,11 @@
+{
+  "name": "꼬꼬택",
+  "short_name": "꼬꼬택",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "icons": [
+    { "src": "/icons/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
