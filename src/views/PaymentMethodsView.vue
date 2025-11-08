@@ -370,7 +370,6 @@ const sections = ref<PaymentSection[]>([
       },
     ],
     addLabel: '추가',
-    addHint: '자주 쓰는 카드를 등록하세요',
     emptyLabel: '등록된 카드가 없습니다.',
   },
   {
