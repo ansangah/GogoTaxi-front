@@ -69,9 +69,17 @@
 
           <div class="section-footer">
             <div class="add-wrapper">
-              <button type="button" class="add-button" @click="handleAdd(section.id)">
-                <span class="add-icon">+</span>
-                <span>{{ section.addLabel }}</span>
+              <button
+                type="button"
+                class="add-button"
+                :disabled="section.id === 'kakao-pay' && kakaoAddLoading"
+                @click="handleAdd(section.id)"
+              >
+                <span class="add-icon" aria-hidden="true">+</span>
+                <span v-if="section.id === 'kakao-pay' && kakaoAddLoading">
+                  카카오페이 연결 중...
+                </span>
+                <span v-else>{{ section.addLabel }}</span>
               </button>
               <span v-if="section.addHint" class="add-hint">{{ section.addHint }}</span>
             </div>
@@ -79,11 +87,22 @@
               v-if="section.manageLabel"
               type="button"
               class="manage-button"
+              :disabled="section.id === 'kakao-pay' && kakaoManageLoading"
               @click="handleManage(section.id)"
             >
-              {{ section.manageLabel }}
+              <span v-if="section.id === 'kakao-pay' && kakaoManageLoading">
+                카카오페이 페이지 여는 중...
+              </span>
+              <span v-else>{{ section.manageLabel }}</span>
             </button>
           </div>
+          <p
+            v-if="section.id === 'kakao-pay' && kakaoPayError"
+            class="kakaopay-error"
+            role="alert"
+          >
+            {{ kakaoPayError }}
+          </p>
         </section>
       </main>
     </div>
@@ -274,6 +293,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import arrowBackIcon from '@/assets/arrowback.png'
+import { requestKakaoPayRedirect, type KakaoPayAction } from '@/services/kakaopay'
 
 type SectionId = 'credit-card' | 'kakao-pay'
 
@@ -412,6 +432,14 @@ const newCard = reactive({
   isCorporate: false,
 })
 const cardFormError = ref('')
+const kakaoPayError = ref('')
+const kakaoPayLoading = reactive<Record<KakaoPayAction, boolean>>({
+  register: false,
+  manage: false,
+})
+
+const kakaoAddLoading = computed(() => kakaoPayLoading.register)
+const kakaoManageLoading = computed(() => kakaoPayLoading.manage)
 
 watch(
   () => newCard.number,
@@ -442,16 +470,45 @@ watch(
 
 const goBack = () => router.back()
 
-const handleManage = (sectionId: string) => {
+const handleManage = async (sectionId: string) => {
+  if (sectionId === 'kakao-pay') {
+    await startKakaoPayFlow('manage')
+    return
+  }
   console.info(`[payment] manage clicked: ${sectionId}`)
 }
 
-const handleAdd = (sectionId: SectionId) => {
-  if (sectionId !== 'credit-card') {
-    console.info(`[payment] add clicked: ${sectionId}`)
+const handleAdd = async (sectionId: SectionId) => {
+  if (sectionId === 'credit-card') {
+    openAddCardModal()
     return
   }
-  openAddCardModal()
+  if (sectionId === 'kakao-pay') {
+    await startKakaoPayFlow('register')
+    return
+  }
+  console.info(`[payment] add clicked: ${sectionId}`)
+}
+
+const startKakaoPayFlow = async (action: KakaoPayAction) => {
+  kakaoPayError.value = ''
+  kakaoPayLoading[action] = true
+
+  try {
+    const { redirectUrl, tid } = await requestKakaoPayRedirect(action)
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem(`kakaopay_tid_${action}`, tid)
+    }
+    window.location.href = redirectUrl
+  } catch (error) {
+    console.error(`[payment] KakaoPay ${action} error`, error)
+    kakaoPayError.value =
+      error instanceof Error
+        ? error.message
+        : '카카오페이 연동에 실패했어요. 잠시 후 다시 시도해 주세요.'
+  } finally {
+    kakaoPayLoading[action] = false
+  }
 }
 
 const openAddCardModal = () => {
@@ -1005,6 +1062,12 @@ const submitPassword = () => {
 .form-error {
   margin: 0;
   font-size: 0.85rem;
+  color: #d64545;
+}
+
+.kakaopay-error {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
   color: #d64545;
 }
 
