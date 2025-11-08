@@ -131,6 +131,7 @@ function btnClass(name: string) {
   bottom: 0;
   height: var(--tab-h);
   padding: 0 clamp(8px, 4vw, 18px) var(--safe-bottom);
+  
   box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
