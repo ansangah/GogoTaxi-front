@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section class="create-room">
     <div class="map-area">
       <RoomMap :rooms="rooms" :selected-room="selectedPreview" />
@@ -247,6 +247,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, reactive, ref, watch, watchEffect } from 'vue'
+import { useRouter } from 'vue-router'
 import RoomMap from '@/components/RoomMap.vue'
 import type { RoomPreview } from '@/types/rooms'
 import { loadKakaoMaps, type KakaoNamespace } from '@/services/kakaoMaps'
@@ -254,6 +255,7 @@ import {
   getUserPaymentMethods,
   type PaymentMethod as StoredPaymentMethod,
 } from '@/data/paymentMethods'
+import { addRoom, loadRooms } from '@/data/roomsStore'
 
 type Priority = 'time' | 'seats'
 type FieldKind = 'departure' | 'arrival'
@@ -266,6 +268,7 @@ type SelectedPlace = {
 }
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
+const router = useRouter()
 
 const ownedPaymentMethods = getUserPaymentMethods('credit-card')
 const fallbackPaymentMethod: StoredPaymentMethod = {
@@ -293,39 +296,7 @@ const MAX_SHEET = 100
 const SHEET_STATES = [COLLAPSED_SHEET, MID_SHEET, MAX_SHEET] as const
 const SNAP_THRESHOLD = 6
 
-const rooms = ref<RoomPreview[]>([
-  {
-    id: 'room-101',
-    title: '강남 → 인천공항 야간 합승',
-    departure: {
-      label: '강남역 5번 출구',
-      position: { lat: 37.498095, lng: 127.02761 },
-    },
-    arrival: {
-      label: '인천국제공항 T1',
-      position: { lat: 37.4602, lng: 126.4407 },
-    },
-    time: '오늘 23:30 출발',
-    seats: 2,
-    tags: ['공항', '야간'],
-  },
-  {
-    id: 'room-102',
-    title: '홍대입구 → 서현역 출근',
-    departure: {
-      label: '홍대입구역 9번 출구',
-      position: { lat: 37.5575, lng: 126.9242 },
-    },
-    arrival: {
-      label: '서현역 AK플라자',
-      position: { lat: 37.3851, lng: 127.1238 },
-    },
-    time: '내일 07:10 출발',
-    seats: 1,
-    tags: ['출근', '아침'],
-  },
-])
-
+const rooms = ref<RoomPreview[]>(loadRooms())
 const sheetHeight = ref<number>(MID_SHEET)
 const isDragging = ref(false)
 const isCollapsed = computed(() => !isDragging.value && sheetHeight.value === COLLAPSED_SHEET)
@@ -738,16 +709,15 @@ function calculateFare(meters: number) {
   return Math.round(baseFare + perKm * km)
 }
 
-function formatDate(datetime: string) {
-  const date = new Date(datetime)
-  if (Number.isNaN(date.getTime())) return '유효한 시간을 선택해 주세요'
-  return date.toLocaleString('ko-KR', {
-    month: 'short',
-    day: 'numeric',
-    weekday: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+function formatDate(value: string) {
+  const [hourToken, minuteToken] = value.split(':')
+  const hours = Number(hourToken)
+  const minutes = Number(minuteToken)
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return '유효한 시간을 선택해 주세요'
+  const period = hours >= 12 ? '오후' : '오전'
+  const normalizedHour = hours % 12 === 0 ? 12 : hours % 12
+  const paddedMinutes = minuteToken?.padStart(2, '0') ?? '00'
+  return `${period} ${normalizedHour}시 ${paddedMinutes}분`
 }
 
 function resetForm() {
@@ -756,13 +726,13 @@ function resetForm() {
   form.arrival = null
   form.departureTime = ''
   form.priority = 'time'
-  form.paymentMethod = '카카오페이'
   departureQuery.value = ''
   arrivalQuery.value = ''
   estimatedFare.value = 0
   estimatedDistanceKm.value = 0
   errorMessage.value = ''
   successMessage.value = ''
+  selectedPaymentMethodId.value = availablePaymentMethods[0]?.id ?? fallbackPaymentMethod.id
 }
 
 function submitForm() {
@@ -774,14 +744,34 @@ function submitForm() {
     return
   }
 
-  successMessage.value = '새로운 방이 임시로 생성됐어요! 목록에서 확인해 보세요.'
-  console.info('[create-room] payload', {
-    ...form,
-    departure: form.departure,
-    arrival: form.arrival,
-    estimatedFare: estimatedFare.value,
-    distanceKm: estimatedDistanceKm.value,
-  })
+  if (!form.departure || !form.arrival) return
+
+  const newRoom: RoomPreview = {
+    id: `room-${Date.now()}`,
+    title: form.title.trim() || `${form.departure.name} → ${form.arrival.name}`,
+    departure: {
+      label: form.departure.name,
+      position: { ...form.departure.position },
+    },
+    arrival: {
+      label: form.arrival.name,
+      position: { ...form.arrival.position },
+    },
+    time: preview.value.time,
+    seats: form.priority === 'seats' ? 3 : 2,
+    tags: [
+      form.priority === 'time' ? '시간 우선' : '인원 우선',
+      form.paymentMethod || '현장 결제',
+    ],
+  }
+
+  addRoom(newRoom)
+  rooms.value = loadRooms()
+  successMessage.value = '새로운 방이 생성됐어요! 방 찾기에서 확인해 주세요.'
+  setTimeout(() => {
+    router.push({ name: 'find-room' })
+    resetForm()
+  }, 400)
 }
 
 onBeforeUnmount(() => {

@@ -71,6 +71,7 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import RoomMap from '@/components/RoomMap.vue'
 import type { RoomPreview } from '@/types/rooms'
+import { loadRooms, ROOMS_STORAGE_KEY } from '@/data/roomsStore'
 
 const COLLAPSED_SHEET = 22
 const MID_SHEET = 60
@@ -78,68 +79,22 @@ const MAX_SHEET = 100
 const SHEET_STATES = [COLLAPSED_SHEET, MID_SHEET, MAX_SHEET] as const
 const SNAP_THRESHOLD = 6
 
-const rooms = ref<RoomPreview[]>([
-  {
-    id: 'room-101',
-    title: '강남역 → 인천공항 새벽 합승',
-    departure: {
-      label: '강남역 5번 출구',
-      position: { lat: 37.498095, lng: 127.02761 },
-    },
-    arrival: {
-      label: '인천국제공항 제1터미널',
-      position: { lat: 37.4602, lng: 126.4407 },
-    },
-    time: '오늘 23:30 출발',
-    seats: 2,
-    tags: ['야간', '공항', '편안한 분위기'],
-  },
-  {
-    id: 'room-102',
-    title: '신촌역 → 수원역 아침 출근',
-    departure: {
-      label: '신촌역 2번 출구',
-      position: { lat: 37.55515, lng: 126.9368 },
-    },
-    arrival: {
-      label: '수원역 AK플라자 앞',
-      position: { lat: 37.2664, lng: 126.9997 },
-    },
-    time: '내일 07:10 출발',
-    seats: 1,
-    tags: ['출근', '정시출발'],
-  },
-  {
-    id: 'room-103',
-    title: '홍대입구역 → 판교역',
-    departure: {
-      label: '홍대입구역 9번 출구',
-      position: { lat: 37.5575, lng: 126.9242 },
-    },
-    arrival: {
-      label: '판교역 2번 출구',
-      position: { lat: 37.3948, lng: 127.1109 },
-    },
-    time: '오늘 20:00 출발',
-    seats: 3,
-    tags: ['직장인', '음악조용히', '비흡연'],
-  },
-  {
-    id: 'room-104',
-    title: '부산 서면 → 해운대 야간',
-    departure: {
-      label: '서면역 7번 출구 택시승강장',
-      position: { lat: 35.1576, lng: 129.0593 },
-    },
-    arrival: {
-      label: '해운대 해수욕장 입구',
-      position: { lat: 35.1587, lng: 129.1604 },
-    },
-    time: '오늘 22:10 출발',
-    seats: 1,
-    tags: ['야경투어', '편안한 분위기'],
-  },
-])
+const rooms = ref<RoomPreview[]>(loadRooms())
+
+function refreshRooms() {
+  rooms.value = loadRooms()
+}
+
+function handleRoomsStorage(event: StorageEvent) {
+  if (event.key === ROOMS_STORAGE_KEY) {
+    refreshRooms()
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', handleRoomsStorage)
+}
+
 
 const sheetHeight = ref<number>(MID_SHEET)
 const isDragging = ref(false)
@@ -246,6 +201,9 @@ onBeforeUnmount(() => {
   window.removeEventListener('pointermove', onPointerMove)
   window.removeEventListener('pointerup', onPointerUp)
   window.removeEventListener('pointercancel', onPointerCancel)
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('storage', handleRoomsStorage)
+  }
 })
 </script>
 
