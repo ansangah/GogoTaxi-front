@@ -91,7 +91,8 @@ function formatDate(dateISO: string) {
 }
 .notice__header h1 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 .notice__header p {
   margin: 0;
@@ -100,32 +101,29 @@ function formatDate(dateISO: string) {
 }
 .back-button {
   border: none;
-  background: rgba(255, 255, 255, 0.12);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  background: transparent;
+  padding: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: transform 0.2s ease;
 }
 .back-button:hover {
-  background: rgba(255, 255, 255, 0.24);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 .back-button:focus-visible {
   outline: 3px solid rgba(255, 255, 255, 0.5);
   outline-offset: 2px;
 }
 .back-icon {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
 }
 .header-spacer {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
 }
 .notice__layout {
   max-width: 860px;
