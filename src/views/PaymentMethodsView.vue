@@ -9,6 +9,27 @@
         <span class="header-spacer" aria-hidden="true"></span>
       </header>
 
+      <section class="password-section" aria-live="polite">
+        <div class="password-copy">
+          <h2>{{ labels.passwordManageTitle }}</h2>
+          <p class="password-description">
+            {{
+              hasPaymentPassword
+                ? labels.passwordManageResetDescription
+                : labels.passwordManageSetupDescription
+            }}
+          </p>
+        </div>
+        <div class="password-actions">
+          <p class="password-status">
+            {{ hasPaymentPassword ? labels.passwordStatusSet : labels.passwordStatusUnset }}
+          </p>
+          <button type="button" class="password-manage-button" @click="openPasswordManager">
+            {{ hasPaymentPassword ? labels.passwordResetButton : labels.passwordSetupButton }}
+          </button>
+        </div>
+      </section>
+
       <main class="payment-content">
         <section
           v-for="section in sections"
@@ -105,6 +126,67 @@
             </button>
             <button type="submit" class="modal-button is-primary">
               {{ labels.passwordSubmit }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div v-if="showPasswordManagerModal" class="modal-backdrop">
+      <div class="modal-card password-manage-card">
+        <h2 class="modal-title">
+          {{
+            hasPaymentPassword ? labels.passwordResetModalTitle : labels.passwordSetupModalTitle
+          }}
+        </h2>
+        <p class="modal-message">
+          {{
+            hasPaymentPassword
+              ? labels.passwordResetModalDescription
+              : labels.passwordSetupModalDescription
+          }}
+        </p>
+        <form class="password-manage-form" @submit.prevent="submitPasswordManager">
+          <label v-if="hasPaymentPassword" class="password-field">
+            <span>{{ labels.currentPasswordLabel }}</span>
+            <input
+              v-model="passwordForm.current"
+              type="password"
+              maxlength="6"
+              inputmode="numeric"
+              autocomplete="off"
+              :placeholder="labels.passwordPlaceholder"
+            />
+          </label>
+          <label class="password-field">
+            <span>{{ labels.newPasswordLabel }}</span>
+            <input
+              v-model="passwordForm.next"
+              type="password"
+              maxlength="6"
+              inputmode="numeric"
+              autocomplete="off"
+              :placeholder="labels.passwordPlaceholder"
+            />
+          </label>
+          <label class="password-field">
+            <span>{{ labels.confirmPasswordLabel }}</span>
+            <input
+              v-model="passwordForm.confirm"
+              type="password"
+              maxlength="6"
+              inputmode="numeric"
+              autocomplete="off"
+              :placeholder="labels.passwordPlaceholder"
+            />
+          </label>
+          <p v-if="passwordFormError" class="form-error">{{ passwordFormError }}</p>
+          <div class="modal-actions">
+            <button type="button" class="modal-button is-secondary" @click="closePasswordManager">
+              {{ labels.cancel }}
+            </button>
+            <button type="submit" class="modal-button is-primary">
+              {{ hasPaymentPassword ? labels.passwordResetSubmit : labels.passwordSetupSubmit }}
             </button>
           </div>
         </form>
@@ -221,6 +303,8 @@ interface RemovalState {
   label: string
 }
 
+type PasswordMode = 'setup' | 'reset'
+
 const router = useRouter()
 
 const labels = {
@@ -237,6 +321,27 @@ const labels = {
   passwordPlaceholder: '6자리 비밀번호',
   passwordSubmit: '삭제하기',
   passwordError: '비밀번호는 6자리 숫자여야 합니다.',
+  passwordManageTitle: '\uacb0\uc81c \ube44\ubc00\ubc88\ud638',
+  passwordManageSetupDescription: '\uacb0\uc81c \ubcf4\uc548\uc744 \uc704\ud574 6\uc790\ub9ac \ube44\ubc00\ubc88\ud638\ub97c \uc124\uc815\ud574 \uc8fc\uc138\uc694.',
+  passwordManageResetDescription: '\ube44\ubc00\ubc88\ud638\ub97c \ubc14\uafb8\uace0 \uc2f6\uc73c\uc2dc\uba74 \ud604\uc7ac \ube44\ubc00\ubc88\ud638\ub97c \ud655\uc778\ud55c \ud6c4 \uc7ac\uc124\uc815\ud574 \uc8fc\uc138\uc694.',
+  passwordStatusSet: '\ube44\ubc00\ubc88\ud638\uac00 \uc124\uc815\ub418\uc5b4 \uc788\uc2b5\ub2c8\ub2e4.',
+  passwordStatusUnset: '\ube44\ubc00\ubc88\ud638\uac00 \uc544\uc9c1 \uc124\uc815\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.',
+  passwordSetupButton: '\uc124\uc815',
+  passwordResetButton: '\uc7ac\uc124\uc815',
+  passwordSetupModalTitle: '\uacb0\uc81c \ube44\ubc00\ubc88\ud638 \uc124\uc815',
+  passwordSetupModalDescription: '6\uc790\ub9ac \ube44\ubc00\ubc88\ud638\ub97c \ub450 \ubc88 \uc785\ub825\ud558\uba74 \uc124\uc815\uc774 \uc644\ub8cc\ub429\ub2c8\ub2e4.',
+  passwordResetModalTitle: '\uacb0\uc81c \ube44\ubc00\ubc88\ud638 \uc7ac\uc124\uc815',
+  passwordResetModalDescription: '\ud604\uc7ac \ube44\ubc00\ubc88\ud638\ub97c \ud655\uc778\ud55c \ud6c4 \uc0c8 \ube44\ubc00\ubc88\ud638\ub97c \uc785\ub825\ud558\uc138\uc694.',
+  currentPasswordLabel: '\ud604\uc7ac \ube44\ubc00\ubc88\ud638',
+  newPasswordLabel: '\uc0c8 \ube44\ubc00\ubc88\ud638',
+  confirmPasswordLabel: '\uc0c8 \ube44\ubc00\ubc88\ud638 \ud655\uc778',
+  passwordConfirmMismatch: '\uc0c8 \ube44\ubc00\ubc88\ud638\uac00 \ud655\uc778 \uc785\ub825\uacfc \uc77c\uce58\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.',
+  passwordCurrentMismatch: '\ud604\uc7ac \ube44\ubc00\ubc88\ud638\uac00 \uc77c\uce58\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.',
+  passwordCurrentRequired: '\ud604\uc7ac \ube44\ubc00\ubc88\ud638\ub294 6\uc790\ub9ac\ub85c \uc785\ub825\ud574 \uc8fc\uc138\uc694.',
+  passwordSetupSubmit: '\uc124\uc815\ud558\uae30',
+  passwordResetSubmit: '\ubc14\ubb34\uae30',
+  passwordUnsetError: '\uacb0\uc81c \ube44\ubc00\ubc88\ud638\ub97c \uba3c\uc800 \uc124\uc815\ud574 \uc8fc\uc138\uc694.',
+  passwordIncorrect: '\ube44\ubc00\ubc88\ud638\uac00 \uc77c\uce58\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.',
   addCardTitle: '신용/체크카드 등록',
   cardNotice: '본인 명의의 카드만 등록할 수 있습니다.',
   cardNumber: '카드번호',
@@ -280,6 +385,17 @@ const sections = ref<PaymentSection[]>([
     manageLabel: '카카오페이 관리',
   },
 ])
+
+const paymentPassword = ref<string | null>(null)
+const hasPaymentPassword = computed(() => Boolean(paymentPassword.value))
+const showPasswordManagerModal = ref(false)
+const passwordFormMode = ref<PasswordMode>('setup')
+const passwordForm = reactive({
+  current: '',
+  next: '',
+  confirm: '',
+})
+const passwordFormError = ref('')
 
 const showConfirmModal = ref(false)
 const showPasswordModal = ref(false)
@@ -395,6 +511,7 @@ const submitNewCard = () => {
 }
 
 const stripSpaces = (value: string) => value.replace(/\s+/g, '')
+const isSixDigits = (value: string) => /^\d{6}$/.test(value)
 
 const requestRemoval = (sectionId: SectionId, methodId: string) => {
   const section = sections.value.find((section) => section.id === sectionId)
@@ -421,9 +538,73 @@ const proceedToPassword = () => {
   passwordError.value = ''
 }
 
+const resetPasswordForm = () => {
+  passwordForm.current = ''
+  passwordForm.next = ''
+  passwordForm.confirm = ''
+  passwordFormError.value = ''
+}
+
+const openPasswordManager = () => {
+  passwordFormMode.value = hasPaymentPassword.value ? 'reset' : 'setup'
+  resetPasswordForm()
+  showPasswordManagerModal.value = true
+}
+
+const closePasswordManager = () => {
+  showPasswordManagerModal.value = false
+  resetPasswordForm()
+}
+
+const submitPasswordManager = () => {
+  passwordFormError.value = ''
+
+  const nextValue = passwordForm.next.trim()
+  const confirmValue = passwordForm.confirm.trim()
+
+  if (!isSixDigits(nextValue)) {
+    passwordFormError.value = labels.passwordError
+    return
+  }
+
+  if (nextValue !== confirmValue) {
+    passwordFormError.value = labels.passwordConfirmMismatch
+    return
+  }
+
+  if (passwordFormMode.value === 'reset') {
+    const currentValue = passwordForm.current.trim()
+
+    if (!isSixDigits(currentValue)) {
+      passwordFormError.value = labels.passwordCurrentRequired
+      return
+    }
+
+    if (paymentPassword.value !== currentValue) {
+      passwordFormError.value = labels.passwordCurrentMismatch
+      return
+    }
+  }
+
+  paymentPassword.value = nextValue
+  closePasswordManager()
+}
+
 const submitPassword = () => {
-  if (!/^\d{6}$/.test(passwordInput.value.trim())) {
+  const enteredValue = passwordInput.value.trim()
+
+  if (!isSixDigits(enteredValue)) {
     passwordError.value = labels.passwordError
+    return
+  }
+
+  if (!paymentPassword.value) {
+    passwordError.value = labels.passwordUnsetError
+    return
+  }
+
+  if (paymentPassword.value !== enteredValue) {
+    passwordError.value = labels.passwordIncorrect
     return
   }
 
@@ -463,6 +644,89 @@ const submitPassword = () => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.password-section {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.password-copy h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.password-description {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: #6a6a70;
+}
+
+.password-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.password-status {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #3c3c42;
+}
+
+.password-manage-button {
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff9c8b 0%, #ff775f 100%);
+  color: #ffffff;
+  padding: 0.55rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 14px 26px rgba(255, 119, 95, 0.22);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.password-manage-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(255, 119, 95, 0.3);
+}
+
+.password-manage-button:focus-visible {
+  outline: 2px solid rgba(255, 119, 95, 0.4);
+  outline-offset: 2px;
+}
+
+.password-manage-card {
+  width: min(420px, 100%);
+}
+
+.password-manage-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.password-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: #4a4a50;
+}
+
+.password-field input {
+  border-radius: 12px;
+  border: 1px solid #d7d7dd;
+  padding: 0.75rem;
+  font-size: 1.05rem;
+  text-align: center;
+  letter-spacing: 0.35em;
 }
 
 .payment-content {
@@ -837,6 +1101,22 @@ const submitPassword = () => {
 @media (max-width: 480px) {
   .payment-wrapper {
     padding: 3rem 0.8rem 3.5rem;
+  }
+
+  .password-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .password-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .password-manage-button {
+    width: 100%;
+    text-align: center;
   }
 
   .method-section {
