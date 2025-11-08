@@ -1162,7 +1162,7 @@ const submitPassword = () => {
 
 @media (max-width: 480px) {
   .payment-wrapper {
-    padding: 3rem 0.8rem 3.5rem;
+    padding: 2rem 0.8rem 3.5rem;
   }
 
   .password-section {
