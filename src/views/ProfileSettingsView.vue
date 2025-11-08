@@ -285,7 +285,7 @@ const copyUsername = async () => {
       copyFeedback.value = "";
       copyTimeout = null;
     }, 2000);
-  } catch (error) {
+  } catch {
     copyFeedback.value = "\uBCF5\uC0AC\uC5D0 \uC2E4\uD328\uD588\uC2B5\uB2C8\uB2E4.";
   }
 };
