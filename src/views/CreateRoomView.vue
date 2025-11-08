@@ -426,10 +426,10 @@ const isValid = computed(() => {
 })
 
 const preview = computed(() => ({
-  title: form.title.trim() || '방 이름을 입력해 주세요',
+  title: form.title.trim() || '방 이름',
   subtitle: `${form.departure?.name ?? '출발지 미정'} → ${form.arrival?.name ?? '도착지 미정'}`,
-  departure: form.departure?.address ?? '출발지를 선택해 주세요',
-  arrival: form.arrival?.address ?? '도착지를 선택해 주세요',
+  departure: form.departure?.address ?? '출발지',
+  arrival: form.arrival?.address ?? '도착지',
   time: form.departureTime ? formatDate(form.departureTime) : '출발 시간을 선택해 주세요',
   priority: form.priority === 'time' ? '시간 우선' : '인원 우선',
   paymentMethod: form.paymentMethod,
@@ -857,60 +857,63 @@ onBeforeUnmount(() => {
 }
 
 .preview-card {
-  padding: clamp(16px, 3.4vw, 20px);
-  border-radius: 24px;
-  background: rgba(15, 23, 42, 0.9);
-  color: #f8fafc;
-  border: 1px solid rgba(37, 99, 235, 0.4);
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+  padding: clamp(18px, 3.6vw, 22px);
+  border-radius: 28px;
+  background: #ffffff;
+  color: #1e1f25;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow:
+    0 20px 40px rgba(15, 23, 42, 0.12),
+    0 4px 10px rgba(15, 23, 42, 0.08);
   display: grid;
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .preview-card__header h2 {
   margin: 0;
   font-size: clamp(16px, 3.6vw, 20px);
+  color: #0f172a;
 }
 
 .preview-card__header p {
-  margin: 0.3rem 0 0;
-  color: rgba(248, 250, 252, 0.7);
+  margin: 0.4rem 0 0;
+  color: #6b7280;
 }
 
 .preview-route__line {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 1rem;
+  gap: 0.9rem;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
 }
 
 .route-pin {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2px solid #60a5fa;
-  background: #1d4ed8;
+  border: 3px solid #ffffff;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
   display: inline-block;
 }
 
 .route-pin.is-end {
-  background: #f97316;
-  border-color: #fdba74;
+  background: linear-gradient(135deg, #f97316, #fb7185);
 }
 
 .route-line__body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #e2e8f0;
+  color: #0f172a;
   font-weight: 600;
 }
 
 .route-divider {
   flex: 1;
   height: 2px;
-  background: linear-gradient(90deg, rgba(96, 165, 250, 0.2), rgba(248, 113, 113, 0.5));
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.4), rgba(251, 113, 133, 0.4));
 }
 
 .route-label {
@@ -929,20 +932,22 @@ onBeforeUnmount(() => {
 .route-meta li {
   display: grid;
   gap: 0.35rem;
-  padding: 0.85rem 1rem;
+  padding: 0.9rem 1.1rem;
   border-radius: 18px;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(148, 163, 184, 0.15);
+  background: #f8fafc;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .route-meta span {
-  font-size: 0.8rem;
-  color: rgba(248, 250, 252, 0.7);
+  font-size: 0.78rem;
+  color: #6b7280;
 }
 
 .route-meta strong {
   font-size: 1rem;
   font-weight: 600;
+  color: #0f172a;
 }
 
 .form {
