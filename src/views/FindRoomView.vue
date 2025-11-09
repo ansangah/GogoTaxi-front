@@ -14,6 +14,7 @@
       :style="sheetStyle"
     >
       <header
+        ref="sheetHeaderRef"
         class="sheet__header"
         @pointerdown="onPointerDown"
         @pointerup="onPointerUp"
@@ -30,6 +31,7 @@
       </header>
 
       <div
+        ref="sheetListRef"
         class="sheet__list"
         :class="{ 'sheet__list--collapsed': isCollapsed }"
       >
@@ -68,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import RoomMap from '@/components/RoomMap.vue'
 import type { RoomPreview } from '@/types/rooms'
 
@@ -145,14 +147,39 @@ const sheetHeight = ref<number>(MID_SHEET)
 const isDragging = ref(false)
 const selectedRoom = ref<RoomPreview | null>(null)
 const isCollapsed = computed(() => !isDragging.value && sheetHeight.value === COLLAPSED_SHEET)
+const sheetHeaderRef = ref<HTMLElement | null>(null)
+const sheetListRef = ref<HTMLElement | null>(null)
+const collapsedSheetHeight = ref<number | null>(null)
 const sheetStyle = computed(() =>
   isCollapsed.value
-    ? { height: 'auto', minHeight: '140px' }
+    ? collapsedSheetHeight.value
+      ? { height: `${collapsedSheetHeight.value}px` }
+      : { height: 'auto' }
     : { height: `${sheetHeight.value}vh` },
 )
 
 let startY = 0
 let startHeight = MID_SHEET
+
+function updateCollapsedSheetHeight() {
+  if (!isCollapsed.value) return
+  const headerEl = sheetHeaderRef.value
+  const listEl = sheetListRef.value
+  if (!headerEl || !listEl) return
+  const headerHeight = headerEl.getBoundingClientRect().height
+  const listHeight = listEl.getBoundingClientRect().height
+  collapsedSheetHeight.value = headerHeight + listHeight
+}
+
+function scheduleCollapsedMeasurement() {
+  if (!isCollapsed.value) return
+  requestAnimationFrame(() => updateCollapsedSheetHeight())
+}
+
+const handleResize = () => {
+  if (!isCollapsed.value) return
+  updateCollapsedSheetHeight()
+}
 
 function clamp(value: number) {
   return Math.min(MAX_SHEET, Math.max(COLLAPSED_SHEET, value))
@@ -235,6 +262,9 @@ function onPointerCancel() {
 }
 
 function toggleSheet() {
+  if (isCollapsed.value) {
+    updateCollapsedSheetHeight()
+  }
   sheetHeight.value = sheetHeight.value === MAX_SHEET ? MID_SHEET : MAX_SHEET
 }
 
@@ -242,10 +272,34 @@ function selectRoom(room: RoomPreview) {
   selectedRoom.value = selectedRoom.value?.id === room.id ? null : room
 }
 
+watch(isCollapsed, (collapsed) => {
+  if (collapsed) {
+    scheduleCollapsedMeasurement()
+  }
+})
+
+watch(
+  rooms,
+  () => {
+    if (isCollapsed.value) {
+      scheduleCollapsedMeasurement()
+    }
+  },
+  { deep: true },
+)
+
+onMounted(() => {
+  if (isCollapsed.value) {
+    scheduleCollapsedMeasurement()
+  }
+  window.addEventListener('resize', handleResize)
+})
+
 onBeforeUnmount(() => {
   window.removeEventListener('pointermove', onPointerMove)
   window.removeEventListener('pointerup', onPointerUp)
   window.removeEventListener('pointercancel', onPointerCancel)
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
