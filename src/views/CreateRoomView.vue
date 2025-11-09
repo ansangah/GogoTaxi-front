@@ -1,14 +1,13 @@
-<template>
+﻿<template>
   <section class="create-room">
     <div class="create-room__container">
-      <header class="page-header">
-        <div>
-          <p class="page-header__eyebrow">방 만들기</p>
-          <h1>내 조건에 맞는 동승 방을 만들어보세요</h1>
-          <p class="page-header__description">
-            목적지와 조건을 입력하면 꼬꼬택이가 함께 탈 동승자를 찾아드려요.
-          </p>
-        </div>
+      <header class="page-header">
+        <div>
+          <p class="page-header__eyebrow">방 만들기</p>
+          <p class="page-header__description page-header__description--inline">
+            조건을 입력하면 꼬꼬택이 함께 탈 동승자를 찾아드려요.
+          </p>
+        </div>
       </header>
 
       <article class="preview-card">
@@ -151,7 +150,6 @@
               @click="form.priority = option.value"
             >
               <span>{{ option.label }}</span>
-              <small>{{ option.description }}</small>
             </button>
           </div>
         </fieldset>
@@ -194,7 +192,7 @@
         <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
 
         <footer class="actions">
-          <button type="button" class="ghost-button" @click="resetForm">초기화</button>
+          <button type="button" class="ghost-button reset-button" @click="resetForm">초기화</button>
           <button type="submit" class="primary-button" :disabled="!isValid">
             방 생성하기
           </button>
@@ -266,8 +264,8 @@ const selectedPaymentMethodId = ref<string>(
 )
 
 const priorityOptions = [
-  { value: 'time', label: '시간 우선', description: '출발 시간을 가장 중요하게 맞춰요.' },
-  { value: 'seats', label: '인원 우선', description: '비슷한 인원을 먼저 찾아요.' },
+  { value: 'time', label: '시간 우선', description: '' },
+  { value: 'seats', label: '인원 우선', description: '' },
 ] satisfies Array<{ value: Priority; label: string; description: string }>
 
 const form = reactive({
@@ -324,7 +322,7 @@ const preview = computed(() => ({
   subtitle: `${form.departure?.name ?? '출발지 미정'} → ${form.arrival?.name ?? '도착지 미정'}`,
   departure: form.departure?.address ?? '출발지',
   arrival: form.arrival?.address ?? '도착지',
-  time: form.departureTime ? formatDate(form.departureTime) : '출발 시간을 선택해 주세요',
+  time: form.departureTime ? formatDate(form.departureTime) : '출발 시간',
   priority: form.priority === 'time' ? '시간 우선' : '인원 우선',
   paymentMethod: form.paymentMethod,
   fare: estimatedFare.value ? `${estimatedFare.value.toLocaleString()}원` : '거리 산정 중',
@@ -640,43 +638,42 @@ function submitForm() {
 
 <style scoped>
 .create-room {
-  --color-bg-top: #fdd651;
-  --color-bg-mid: #ffe793;
-  --color-bg-bottom: #fff8e6;
-  --color-surface: #fffdf7;
-  --color-surface-strong: #ffe07a;
-  --color-border: #f1c24b;
-  --color-text-strong: #4c2b00;
-  --color-text-muted: #7e6633;
-  --color-pill: #ffedb3;
-  --color-pill-strong: #f7c247;
-  --color-accent: #f39b00;
+  --color-background: #ffffff;
+  --color-surface: #eeeff2;
+  --color-border: #d7d8de;
+  --color-text-strong: #2f1c03;
+  --color-text-muted: #6a5f4d;
+  --color-button: #fdd651;
+  --color-button-text: #2f1c03;
 
   min-height: 100dvh;
-  background: linear-gradient(
-    180deg,
-    var(--color-bg-top) 0%,
-    var(--color-bg-mid) 45%,
-    var(--color-bg-bottom) 100%
-  );
+  background: var(--color-background);
   color: var(--color-text-strong);
 }
 
 .create-room__container {
   width: min(920px, 100%);
   margin: 0 auto;
-  padding: clamp(32px, 5vw, 72px) clamp(16px, 4vw, 48px) clamp(64px, 8vw, 110px);
+  padding: clamp(32px, 5vw, 72px) clamp(16px, 4vw, 48px) clamp(48px, 6vw, 80px);
   display: flex;
   flex-direction: column;
   gap: clamp(18px, 3vw, 32px);
 }
 
-.page-header {
+.page-header,
+.preview-card,
+.form,
+fieldset.field,
+.payment-card,
+.map-picker__panel {
   background: var(--color-surface);
-  border-radius: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 32px;
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.08);
+}
+
+.page-header {
   padding: clamp(20px, 3vw, 32px);
-  box-shadow: 0 32px 50px rgba(222, 172, 55, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.65);
 }
 
 .page-header__eyebrow {
@@ -689,9 +686,8 @@ function submitForm() {
 }
 
 .page-header h1 {
-  margin: 0.45rem 0 0.6rem;
-  font-size: clamp(1.45rem, 4vw, 2rem);
-  color: var(--color-text-strong);
+  margin: 0.4rem 0 0.6rem;
+  font-size: clamp(1.4rem, 4vw, 2rem);
 }
 
 .page-header__description {
@@ -700,26 +696,23 @@ function submitForm() {
   line-height: 1.45;
 }
 
+.page-header__description--inline {
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
 .preview-card {
   padding: clamp(20px, 3.6vw, 28px);
-  border-radius: 32px;
-  background: var(--color-surface-strong);
-  border: 1px solid var(--color-border);
-  box-shadow:
-    0 24px 38px rgba(226, 173, 63, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  display: grid;
-  gap: 1.25rem;
+  border-radius: 28px;
 }
 
 .preview-card__header h2 {
   margin: 0;
-  font-size: clamp(1.05rem, 3.6vw, 1.25rem);
-  color: var(--color-text-strong);
+  font-size: clamp(1.05rem, 3.4vw, 1.25rem);
 }
 
 .preview-card__header p {
-  margin: 0.45rem 0 0;
+  margin: 0.4rem 0 0;
   color: var(--color-text-muted);
 }
 
@@ -735,31 +728,21 @@ function submitForm() {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 3px solid var(--color-surface);
-  background: linear-gradient(135deg, #ffb347, #fdd651);
-  box-shadow: 0 8px 18px rgba(243, 155, 0, 0.35);
-}
-
-.route-pin.is-end {
-  background: linear-gradient(135deg, #f55f44, #fdd651);
+  border: 3px solid #ffffff;
+  background: var(--color-button);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
 }
 
 .route-line__body {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: var(--color-text-strong);
-  font-weight: 600;
 }
 
 .route-divider {
   flex: 1;
   height: 2px;
-  background: linear-gradient(90deg, rgba(243, 155, 0, 0.6), rgba(249, 94, 68, 0.6));
-}
-
-.route-label {
-  min-width: 120px;
+  background: rgba(0, 0, 0, 0.14);
 }
 
 .route-meta {
@@ -768,42 +751,29 @@ function submitForm() {
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.8rem;
+  gap: 0.75rem;
 }
 
 .route-meta li {
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
   display: grid;
   gap: 0.3rem;
-  padding: 0.95rem 1.1rem;
-  border-radius: 20px;
-  background: var(--color-surface);
-  border: 1px solid rgba(241, 194, 75, 0.5);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .route-meta span {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--color-text-muted);
 }
 
-.route-meta strong {
-  font-size: 1.02rem;
-  font-weight: 600;
-  color: var(--color-text-strong);
-}
-
 .form {
+  padding: clamp(20px, 3.6vw, 28px);
+  border-radius: 28px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-top: 0.5rem;
-  padding: clamp(20px, 3.6vw, 28px);
-  border-radius: 32px;
-  background: var(--color-surface);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow:
-    0 28px 46px rgba(226, 173, 63, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .form-grid {
@@ -824,18 +794,17 @@ function submitForm() {
 .field input,
 .field select {
   border-radius: 18px;
-  border: 1.5px solid rgba(241, 194, 75, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   padding: 0.85rem 1rem;
-  font-size: 0.96rem;
-  background: #fffef9;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #ffffff;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
 .field input:focus,
 .field select:focus {
   outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(243, 155, 0, 0.2);
+  border-color: var(--color-button);
+  box-shadow: 0 0 0 3px rgba(253, 214, 81, 0.35);
 }
 
 .field--autocomplete .suggestion-list {
@@ -843,16 +812,16 @@ function submitForm() {
   top: calc(100% + 6px);
   left: 0;
   right: 0;
+  list-style: none;
   margin: 0;
   padding: 0.4rem 0;
-  list-style: none;
   background: #ffffff;
-  border-radius: 18px;
-  box-shadow: 0 22px 40px rgba(225, 173, 63, 0.25);
-  border: 1px solid rgba(241, 194, 75, 0.4);
-  z-index: 5;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.12);
   max-height: 220px;
   overflow-y: auto;
+  z-index: 5;
 }
 
 .suggestion-list li button {
@@ -868,79 +837,7 @@ function submitForm() {
 }
 
 .suggestion-list li button:hover {
-  background: rgba(243, 155, 0, 0.08);
-}
-
-.suggestion-list strong {
-  font-size: 0.92rem;
-}
-
-.suggestion-list span {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-}
-
-fieldset.field {
-  border: 1.5px solid rgba(241, 194, 75, 0.55);
-  border-radius: 24px;
-  padding: 1.1rem;
-  background: #fffef9;
-}
-
-.payment-methods {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.85rem;
-}
-
-.payment-card {
-  border: 1.5px solid rgba(241, 194, 75, 0.45);
-  border-radius: 20px;
-  padding: 0.95rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: #fffef9;
-  cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.18s ease;
-}
-
-.payment-card.is-active {
-  border-color: var(--color-accent);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 10px 18px rgba(243, 155, 0, 0.2);
-  transform: translateY(-2px);
-}
-
-.payment-card__icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: var(--color-pill);
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  color: var(--color-text-strong);
-}
-
-.payment-card__text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.payment-card__name {
-  margin: 0;
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: var(--color-text-strong);
-}
-
-.payment-card__desc {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .input-with-action {
@@ -957,60 +854,97 @@ fieldset.field {
 .pin-button {
   position: absolute;
   right: 0.5rem;
-  border: none;
-  background: var(--color-pill);
-  color: var(--color-text-strong);
-  font-size: 1rem;
-  cursor: pointer;
-  line-height: 1;
   width: 2.3rem;
   height: 2.3rem;
   border-radius: 50%;
-  display: grid;
-  place-items: center;
-  transition: background 0.2s ease;
+  border: none;
+  background: var(--color-button);
+  color: var(--color-button-text);
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.pin-button:focus-visible {
-  outline: 2px solid rgba(243, 155, 0, 0.5);
-  outline-offset: 2px;
+fieldset.field {
+  padding: 1.1rem;
+  border-radius: 24px;
 }
 
 .priority-field legend {
-  padding: 0 0.4rem;
   font-weight: 600;
-  color: var(--color-text-strong);
+  color: var(--color-text-muted);
 }
 
 .priority-toggle {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  display: flex;
   gap: 0.75rem;
-  margin-top: 0.5rem;
+  flex-wrap: nowrap;
 }
 
 .priority-chip {
-  border: 1px solid rgba(241, 194, 75, 0.65);
-  border-radius: 18px;
-  padding: 0.8rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.2rem;
-  cursor: pointer;
-  background: var(--color-pill);
-  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  flex: 1 1 0;
 }
 
-.priority-chip small {
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
+.priority-chip {
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 0.75rem 1rem;
+  background: #fff7d9;
+  color: var(--color-text-strong);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .priority-chip.is-active {
-  border-color: var(--color-accent);
-  background: rgba(243, 155, 0, 0.15);
+  background: var(--color-button);
+  border-color: var(--color-button);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.payment-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.85rem;
+}
+
+.payment-card {
+  padding: 0.95rem 1rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  border: none;
+  background: var(--color-button);
+  color: var(--color-button-text);
+}
+
+.payment-card.is-active {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+}
+
+.payment-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.5);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
   color: var(--color-text-strong);
+}
+
+.payment-card__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
 .hint {
@@ -1026,49 +960,41 @@ fieldset.field {
   flex-wrap: wrap;
 }
 
-.ghost-button {
-  border: 1.5px solid rgba(241, 194, 75, 0.7);
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 999px;
-  padding: 0.5rem 1.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--color-text-strong);
-}
-
-.primary-button {
+.primary-button,
+.ghost-button,
+.map-picker__actions .ghost-button,
+.map-picker__actions .primary-button {
+  background: var(--color-button);
+  color: var(--color-button-text);
   border: none;
   border-radius: 999px;
-  padding: 0.95rem 2.3rem;
-  background: linear-gradient(135deg, #ffb347, #fdd651);
-  color: #4c2b00;
-  font-weight: 700;
+  padding: 0.9rem 2.2rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 18px 28px rgba(243, 155, 0, 0.35);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease;
 }
 
-.primary-button:disabled {
-  opacity: 0.35;
+.reset-button {
+  background: linear-gradient(135deg, #ff9c8b 0%, #ff775f 100%);
+  color: #ffffff;
+  box-shadow: 0 16px 26px rgba(255, 119, 95, 0.28);
+}
+
+.reset-button:not(:disabled):hover {
+  box-shadow: 0 18px 30px rgba(255, 119, 95, 0.35);
+}
+
+.primary-button:disabled,
+.ghost-button:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-.primary-button:not(:disabled):hover {
+.primary-button:not(:disabled):hover,
+.ghost-button:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 20px 32px rgba(243, 155, 0, 0.45);
-}
-
-.form-error {
-  color: #dc2626;
-  margin: 0;
-  font-weight: 600;
-}
-
-.form-success {
-  color: #059669;
-  margin: 0;
-  font-weight: 600;
 }
 
 .map-picker {
@@ -1083,28 +1009,26 @@ fieldset.field {
 .map-picker__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(76, 43, 0, 0.4);
+  background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(4px);
 }
 
 .map-picker__panel {
-  position: relative;
-  width: min(640px, 90vw);
-  background: #fffef9;
+  padding: 1.6rem;
   border-radius: 32px;
-  padding: 1.7rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
-  box-shadow: 0 34px 70px rgba(76, 43, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  gap: 1rem;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  position: relative;
   z-index: 1;
 }
 
 .map-picker__header h3 {
   margin: 0;
   font-size: 1.2rem;
-  color: var(--color-text-strong);
 }
 
 .map-picker__header p {
@@ -1115,9 +1039,9 @@ fieldset.field {
 
 .map-picker__canvas {
   height: 360px;
-  border-radius: 24px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
   overflow: hidden;
-  border: 1px solid rgba(241, 194, 75, 0.6);
 }
 
 .map-picker__actions {
@@ -1127,9 +1051,11 @@ fieldset.field {
   flex-wrap: wrap;
 }
 
-@media (min-width: 960px) {
-  .create-room__container {
-    max-width: 980px;
+
+@media (max-width: 600px) {
+  .form-grid,
+  .payment-methods {
+    grid-template-columns: 1fr;
   }
 }
 </style>
