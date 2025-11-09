@@ -22,7 +22,7 @@ const routes = [
     path: '/find-room',
     name: 'find-room',
     component: () => import('@/views/FindRoomView.vue'),
-    meta: { requiresAuth: true, lockScroll: true },
+    meta: { requiresAuth: true, lockScroll: true, flushBottomNav: true },
   },
   {
     path: '/my-rooms',

@@ -26,6 +26,7 @@ const hideBottomTab = computed(() => {
 })
 
 const lockContentScroll = computed(() => Boolean(route.meta?.lockScroll))
+const flushBottomTab = computed(() => Boolean(route.meta?.flushBottomNav))
 
 const contentStyle = computed(() => {
   const style: Record<string, string> = {}
@@ -34,6 +35,8 @@ const contentStyle = computed(() => {
     style.paddingBottom = '0'
     style.minHeight = viewportHeight
     style.height = viewportHeight
+  } else if (flushBottomTab.value) {
+    style.paddingBottom = '0'
   }
   if (lockContentScroll.value) {
     style.overflow = 'hidden'

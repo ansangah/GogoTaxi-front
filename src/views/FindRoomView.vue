@@ -1,5 +1,5 @@
 <template>
-  <section class="find-room">
+  <section ref="viewRef" class="find-room">
     <div class="map-area">
       <RoomMap :rooms="rooms" :selected-room="selectedRoom" />
     </div>
@@ -143,6 +143,7 @@ const rooms = ref<RoomPreview[]>([
   },
 ])
 
+const viewRef = ref<HTMLElement | null>(null)
 const sheetHeight = ref<number>(MID_SHEET)
 const isDragging = ref(false)
 const selectedRoom = ref<RoomPreview | null>(null)
@@ -150,16 +151,19 @@ const isCollapsed = computed(() => !isDragging.value && sheetHeight.value === CO
 const sheetHeaderRef = ref<HTMLElement | null>(null)
 const sheetListRef = ref<HTMLElement | null>(null)
 const collapsedSheetHeight = ref<number | null>(null)
+const availableHeight = ref(0)
+const baseHeight = computed(() => availableHeight.value || window.innerHeight)
 const sheetStyle = computed(() =>
   isCollapsed.value
     ? collapsedSheetHeight.value
-      ? { height: `${collapsedSheetHeight.value}px` }
+      ? { height: `${Math.min(collapsedSheetHeight.value, baseHeight.value)}px` }
       : { height: 'auto' }
-    : { height: `${sheetHeight.value}vh` },
+    : { height: `${(sheetHeight.value / 100) * baseHeight.value}px` },
 )
 
 let startY = 0
 let startHeight = MID_SHEET
+let resizeObserver: ResizeObserver | null = null
 
 function updateCollapsedSheetHeight() {
   if (!isCollapsed.value) return
@@ -176,9 +180,15 @@ function scheduleCollapsedMeasurement() {
   requestAnimationFrame(() => updateCollapsedSheetHeight())
 }
 
+function updateAvailableHeight() {
+  availableHeight.value = viewRef.value?.getBoundingClientRect().height ?? window.innerHeight
+}
+
 const handleResize = () => {
-  if (!isCollapsed.value) return
-  updateCollapsedSheetHeight()
+  updateAvailableHeight()
+  if (isCollapsed.value) {
+    updateCollapsedSheetHeight()
+  }
 }
 
 function clamp(value: number) {
@@ -217,7 +227,7 @@ function onPointerDown(event: PointerEvent) {
 function onPointerMove(event: PointerEvent) {
   if (!isDragging.value) return
   const deltaY = startY - event.clientY
-  const deltaPercent = (deltaY / window.innerHeight) * 100
+  const deltaPercent = (deltaY / baseHeight.value) * 100
   sheetHeight.value = clamp(startHeight + deltaPercent)
 }
 
@@ -289,6 +299,14 @@ watch(
 )
 
 onMounted(() => {
+  updateAvailableHeight()
+  if (viewRef.value && 'ResizeObserver' in window) {
+    resizeObserver = new ResizeObserver(() => {
+      updateAvailableHeight()
+      if (isCollapsed.value) scheduleCollapsedMeasurement()
+    })
+    resizeObserver.observe(viewRef.value)
+  }
   if (isCollapsed.value) {
     scheduleCollapsedMeasurement()
   }
@@ -300,13 +318,15 @@ onBeforeUnmount(() => {
   window.removeEventListener('pointerup', onPointerUp)
   window.removeEventListener('pointercancel', onPointerCancel)
   window.removeEventListener('resize', handleResize)
+  resizeObserver?.disconnect()
 })
 </script>
 
 <style scoped>
 .find-room {
   position: relative;
-  height: 100dvh;
+  height: 100%;
+  min-height: 100%;
   background: #f5f5f5;
   color: #1f2937;
   overflow: hidden;
@@ -403,7 +423,7 @@ onBeforeUnmount(() => {
   flex: 1;
   overflow-y: auto;
   padding: clamp(6px, 1.6vw, 10px) clamp(18px, 4vw, 26px) clamp(18px, 3.6vw, 26px);
-  padding-bottom: calc(var(--tab-h) + clamp(18px, 3.6vw, 26px));
+  scroll-padding-bottom: var(--tab-h);
   display: grid;
   gap: clamp(12px, 2.6vw, 18px);
 }
