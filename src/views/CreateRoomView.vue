@@ -10,46 +10,6 @@
         </div>
       </header>
 
-      <article class="preview-card">
-        <header class="preview-card__header">
-          <h2>{{ preview.title }}</h2>
-          <p>{{ preview.subtitle }}</p>
-        </header>
-        <div class="preview-route">
-          <div class="preview-route__line">
-            <span class="route-pin is-start" />
-            <div class="route-line__body">
-              <span class="route-label">
-                {{ preview.departure }}
-              </span>
-              <span class="route-divider" />
-              <span class="route-label">
-                {{ preview.arrival }}
-              </span>
-            </div>
-            <span class="route-pin is-end" />
-          </div>
-          <ul class="route-meta">
-            <li>
-              <span>출발</span>
-              <strong>{{ preview.time }}</strong>
-            </li>
-            <li>
-              <span>우선순위</span>
-              <strong>{{ preview.priority }}</strong>
-            </li>
-            <li>
-              <span>결제</span>
-              <strong>{{ preview.paymentMethod }}</strong>
-            </li>
-            <li>
-              <span>예상 금액</span>
-              <strong>{{ preview.fare }}</strong>
-            </li>
-          </ul>
-        </div>
-      </article>
-
       <form class="form" @submit.prevent="submitForm">
         <div class="form-grid">
           <label class="field">
@@ -698,73 +658,6 @@ fieldset.field,
 .page-header__description--inline {
   font-size: 0.9rem;
   white-space: nowrap;
-}
-
-.preview-card {
-  padding: clamp(20px, 3.6vw, 28px);
-  border-radius: 28px;
-}
-
-.preview-card__header h2 {
-  margin: 0;
-  font-size: clamp(1.05rem, 3.4vw, 1.25rem);
-}
-
-.preview-card__header p {
-  margin: 0.4rem 0 0;
-  color: var(--color-text-muted);
-}
-
-.preview-route__line {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.route-pin {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 3px solid #ffffff;
-  background: var(--color-button);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
-}
-
-.route-line__body {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.route-divider {
-  flex: 1;
-  height: 2px;
-  background: rgba(0, 0, 0, 0.14);
-}
-
-.route-meta {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
-}
-
-.route-meta li {
-  padding: 0.9rem 1rem;
-  border-radius: 18px;
-  background: #ffffff;
-  border: 1px solid var(--color-border);
-  display: grid;
-  gap: 0.3rem;
-}
-
-.route-meta span {
-  font-size: 0.82rem;
-  color: var(--color-text-muted);
 }
 
 .form {
