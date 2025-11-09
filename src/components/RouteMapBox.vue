@@ -54,7 +54,7 @@ function clearPolyline() {
   }
 }
 
-function renderRoute() {
+function renderStraightRoute() {
   if (!map || !kakaoApi) return
   clearMarkers()
   clearPolyline()
@@ -99,14 +99,14 @@ function initializeMap(kakao: KakaoNamespace) {
   })
   ready.value = true
   errorMessage.value = null
-  renderRoute()
+  renderStraightRoute()
 
   resizeHandler = () => {
     if (!map) return
     if (typeof map.relayout === 'function') {
       map.relayout()
     }
-    renderRoute()
+    renderStraightRoute()
   }
   window.addEventListener('resize', resizeHandler)
   requestAnimationFrame(() => resizeHandler && resizeHandler())
@@ -130,7 +130,7 @@ watch(
   ],
   () => {
     if (map && kakaoApi) {
-      renderRoute()
+      renderStraightRoute()
     }
   },
 )

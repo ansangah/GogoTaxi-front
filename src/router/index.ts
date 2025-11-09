@@ -17,6 +17,12 @@ const routes = [
     component: () => import('@/views/CreateRoomView.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/split-payment',
+    name: 'split-payment',
+    component: () => import('@/views/SplitPaymentView.vue'),
+    meta: { requiresAuth: true },
+  },
   { path: '/home', name: 'home', component: MainPageView, meta: { requiresAuth: true } },
   {
     path: '/find-room',
