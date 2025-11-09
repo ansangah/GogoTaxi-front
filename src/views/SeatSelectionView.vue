@@ -62,7 +62,6 @@
       </transition>
 
       <footer class="seat-card__actions">
-        <button type="button" class="btn btn--ghost" @click="goBackHome">나중에 할게요</button>
         <button type="button" class="btn btn--primary" :disabled="!selectedSeat" @click="confirmSeat">
           좌석 확정하기
         </button>
@@ -100,10 +99,6 @@ function seatStyle(seat: SeatInfo) {
 
 function selectSeat(seatNumber: number) {
   selectedSeat.value = seatNumber
-}
-
-function goBackHome() {
-  router.push({ name: 'home' })
 }
 
 function confirmSeat() {
@@ -244,14 +239,6 @@ function confirmSeat() {
   opacity: 0.4;
   transform: none;
   box-shadow: none;
-}
-.btn--ghost {
-  background: rgba(79, 67, 56, 0.1);
-  color: #4f4338;
-}
-.btn--ghost:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(79, 67, 56, 0.16);
 }
 .btn--primary {
   background: linear-gradient(135deg, #2563eb, #3b82f6);
