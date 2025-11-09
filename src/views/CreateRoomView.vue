@@ -1067,6 +1067,19 @@ fieldset.field {
   flex-wrap: wrap;
 }
 
+.map-picker__actions .ghost-button {
+  background: #ffffff;
+  color: var(--color-text-strong);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.map-picker__actions .ghost-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
 
 @media (max-width: 600px) {
   .form-grid,
