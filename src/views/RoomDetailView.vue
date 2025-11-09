@@ -49,7 +49,7 @@
             <button type="button" class="link-btn" @click="changeSeat">좌석 다시 고르기</button>
           </div>
           <transition name="route-map">
-            <div v-if="showRouteMap" ref="routeMapRef" class="route-map-wrapper">
+            <div v-if="showRouteMap" class="route-map-wrapper">
               <RouteMapBox
                 :departure="room.departure"
                 :arrival="room.arrival"
@@ -125,7 +125,7 @@
   </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getRoomById, mockRooms } from '@/data/mockRooms'
 import type { RoomPreview } from '@/types/rooms'
@@ -161,7 +161,6 @@ const perPersonFare = computed(() =>
 )
 
 const showRouteMap = ref(false)
-const routeMapRef = ref<HTMLElement | null>(null)
 
 function changeSeat() {
   router.push({ name: 'seat-selection', query: { roomId: roomId.value } })
@@ -177,11 +176,6 @@ function retryDispatch() {
 
 function toggleRouteMap() {
   showRouteMap.value = !showRouteMap.value
-  if (showRouteMap.value) {
-    nextTick(() => {
-      routeMapRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
-  }
 }
 
 type DispatchStatus = NonNullable<RoomPreview['status']>
