@@ -9,6 +9,7 @@
       <div class="room-live__meta">
         <span>{{ room.time }}</span>
         <span v-if="seatNumber">내 좌석 {{ seatNumber }}번</span>
+        <span v-if="room.capacity">정원 {{ room.capacity }}명</span>
       </div>
       <div class="room-live__actions">
         <button type="button" class="btn btn--ghost" @click="leaveRoom">방 나가기</button>
@@ -51,15 +52,18 @@
           <h2>요금 정보</h2>
           <div class="fare-summary">
             <div class="fare-summary__item">
-              <p class="fare-summary__label">내 요금</p>
-              <strong>{{ formatFare(room.myFare) }}</strong>
+              <p class="fare-summary__label">
+                내 요금
+                <span class="fare-summary__count">({{ participantCount }}명 기준)</span>
+              </p>
+              <strong>{{ formatFare(perPersonFare) }}</strong>
             </div>
             <div class="fare-summary__item">
               <p class="fare-summary__label">전체 요금</p>
               <strong>{{ formatFare(room.fare) }}</strong>
             </div>
           </div>
-          <p class="fare-summary__hint">배차 확정 시 자동 결제 예정이에요.</p>
+          <p class="fare-summary__hint">참여 인원에 맞춰 n분의 1로 자동 계산돼요.</p>
         </article>
 
         <article class="room-panel room-panel--status">
@@ -97,12 +101,11 @@
                     {{ mate.name }}
                     <span v-if="mate.role" class="participant__role">{{ mate.role }}</span>
                   </p>
-                  <small>{{ mate.statusText }}</small>
+                  <small class="participant__seat">
+                    {{ mate.seat ? `${mate.seat}번 좌석` : '좌석 미정' }}
+                  </small>
                 </div>
               </div>
-              <span class="participant__state" :class="`participant__state--${mate.status}`">
-                {{ mate.status === 'ready' ? '준비 완료' : '대기 중' }}
-              </span>
             </li>
           </ul>
         </article>
@@ -130,17 +133,20 @@ const seatNumber = computed(() => {
 })
 
 const participants = computed(() => [
-  { id: 'p1', name: '이유진', initials: 'YJ', role: '방장', status: 'ready', statusText: '현재 위치에서 출발 대기 중' },
-  { id: 'p2', name: '최우식', initials: 'WS', status: 'ready', statusText: '5분 내 도착 예정' },
-  { id: 'p3', name: '박지연', initials: 'JY', status: 'waiting', statusText: '출발지로 이동 중' },
+  { id: 'p1', name: '이유진', initials: 'YJ', role: '방장', seat: 1 },
+  { id: 'p2', name: '최우식', initials: 'WS', seat: 2 },
+  { id: 'p3', name: '박지연', initials: 'JY', seat: 3 },
   {
     id: 'me',
     name: '나',
     initials: seatNumber.value ? seatNumber.value.toString() : 'ME',
-    status: seatNumber.value ? 'ready' : 'waiting',
-    statusText: seatNumber.value ? `${seatNumber.value}번 좌석 확정 완료` : '좌석을 선택해주세요',
+    seat: seatNumber.value,
   },
 ])
+const participantCount = computed(() => Math.max(participants.value.length, 1))
+const perPersonFare = computed(() =>
+  room.value.fare ? Math.round(room.value.fare / participantCount.value) : undefined,
+)
 
 function openRoute() {
   alert('지도 경로는 다음 업데이트에서 제공될 예정입니다.')
@@ -195,6 +201,7 @@ function formatFare(amount?: number) {
 .room-live {
   min-height: calc(100dvh - var(--header-h, 0px));
   padding: clamp(32px, 6vw, 64px) clamp(18px, 5vw, 48px);
+  padding-bottom: max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px));
   background: linear-gradient(180deg, #fffdf5 0%, #fff8dc 100%);
   color: #3b2f1f;
   display: grid;
@@ -206,7 +213,6 @@ function formatFare(amount?: number) {
   border-radius: 32px;
   padding: clamp(24px, 4vw, 36px);
   border: 1px solid rgba(234, 179, 8, 0.3);
-  box-shadow: 0 24px 48px rgba(234, 179, 8, 0.18);
   display: grid;
   gap: 10px;
 }
@@ -347,7 +353,7 @@ function formatFare(amount?: number) {
   color: #3b2f1f;
 }
 
-.participant__info small {
+.participant__seat {
   color: #a16207;
 }
 
@@ -355,20 +361,6 @@ function formatFare(amount?: number) {
   margin-left: 8px;
   font-size: 12px;
   color: #b45309;
-}
-
-.participant__state {
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.participant__state--ready {
-  color: #15803d;
-}
-
-.participant__state--waiting {
-  color: #c2410c;
 }
 
 .fare-summary {
@@ -386,6 +378,12 @@ function formatFare(amount?: number) {
   margin: 0;
   font-size: 13px;
   color: #a16207;
+}
+
+.fare-summary__count {
+  font-size: 12px;
+  color: #c2410c;
+  margin-left: 6px;
 }
 
 .fare-summary__item strong {
@@ -407,7 +405,6 @@ function formatFare(amount?: number) {
   padding: 18px;
   background: rgba(253, 230, 138, 0.45);
   border: 1px solid rgba(251, 191, 36, 0.45);
-  box-shadow: 0 12px 24px rgba(251, 191, 36, 0.25);
 }
 
 .status-current__label {
@@ -433,7 +430,6 @@ function formatFare(amount?: number) {
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 10px 20px rgba(185, 28, 28, 0.3);
 }
 
 .status-current__retry:hover {
@@ -443,13 +439,11 @@ function formatFare(amount?: number) {
 .status-current--success {
   background: rgba(187, 247, 208, 0.45);
   border-color: rgba(16, 185, 129, 0.45);
-  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.25);
 }
 
 .status-current--failed {
   background: rgba(254, 226, 226, 0.65);
   border-color: rgba(248, 113, 113, 0.45);
-  box-shadow: 0 12px 24px rgba(248, 113, 113, 0.25);
 }
 
 .status-hint {
@@ -499,7 +493,7 @@ function formatFare(amount?: number) {
   padding: 12px 18px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .btn--ghost {
@@ -511,7 +505,6 @@ function formatFare(amount?: number) {
 .btn--primary {
   background: #fbbf24;
   color: #7c2d12;
-  box-shadow: 0 12px 24px rgba(251, 191, 36, 0.35);
 }
 
 .btn:hover {

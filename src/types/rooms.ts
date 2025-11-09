@@ -15,10 +15,11 @@ export type RoomPreview = {
   arrival: RoomLocation
   time: string
   seats: number
+  capacity: number
+  filled: number
   tags: string[]
   eta?: string
   fare?: number
-  myFare?: number
   status?: 'recruiting' | 'dispatching' | 'success' | 'failed'
   taxi?: {
     carNumber: string

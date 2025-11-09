@@ -64,7 +64,7 @@ const routes = [
     path: '/rooms/:id',
     name: 'room-detail',
     component: () => import('@/views/RoomDetailView.vue'),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, flushBottomNav: true },
   },
   {
     path: '/payment-methods',

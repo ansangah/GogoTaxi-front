@@ -56,7 +56,9 @@
         >
           <header class="room-card__header">
             <h2>{{ room.title }}</h2>
-            <span class="room-card__seats">{{ room.seats }}자리 남음</span>
+            <span class="room-card__seats">
+              {{ room.capacity }}명 중 {{ room.filled }}명 참여
+            </span>
           </header>
           <dl class="room-card__meta">
             <div>
@@ -99,8 +101,8 @@
                   <dd>{{ room.time }}</dd>
                 </div>
                 <div>
-                  <dt>잔여 좌석</dt>
-                  <dd>{{ room.seats }}자리</dd>
+                  <dt>참여 / 정원</dt>
+                  <dd>{{ room.filled }} / {{ room.capacity }}</dd>
                 </div>
               </dl>
               <footer class="room-detail__tags">
