@@ -58,7 +58,7 @@
               v-model.trim="form.title"
               type="text"
               maxlength="25"
-              placeholder="공항팟 99 !!"
+              placeholder="꼬꼬택과 함께 해요!"
             />
           </label>
 
@@ -309,7 +309,6 @@ const estimatedDistanceKm = ref(0)
 
 const isValid = computed(() => {
   return (
-    Boolean(form.title.trim()) &&
     Boolean(form.departure) &&
     Boolean(form.arrival) &&
     Boolean(form.departureTime) &&
@@ -318,7 +317,7 @@ const isValid = computed(() => {
 })
 
 const preview = computed(() => ({
-  title: form.title.trim() || '방 이름',
+  title: form.title.trim() || '꼬꼬택과 함께 해요!',
   subtitle: `${form.departure?.name ?? '출발지 미정'} → ${form.arrival?.name ?? '도착지 미정'}`,
   departure: form.departure?.address ?? '출발지',
   arrival: form.arrival?.address ?? '도착지',
@@ -609,7 +608,7 @@ function submitForm() {
 
   const newRoom: RoomPreview = {
     id: `room-${Date.now()}`,
-    title: form.title.trim() || `${form.departure.name} → ${form.arrival.name}`,
+    title: form.title.trim() || '꼬꼬택과 함께 해요!',
     departure: {
       label: form.departure.name,
       position: { ...form.departure.position },
@@ -627,7 +626,7 @@ function submitForm() {
   }
 
   addRoom(newRoom)
-  successMessage.value = '새로운 방이 생성됐어요! 방 찾기에서 확인해 주세요.'
+  successMessage.value = ''
   setTimeout(() => {
     router.push({ name: 'find-room' })
     resetForm()
