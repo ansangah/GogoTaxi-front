@@ -94,7 +94,17 @@
 
           <label class="field">
             <span>출발 시간</span>
-            <input v-model="form.departureTime" type="time" step="60" placeholder="예) 08:30" />
+            <button
+              type="button"
+              class="time-trigger"
+              :class="{ 'is-placeholder': !form.departureTime }"
+              @click="openTimePicker"
+            >
+              <span class="time-trigger__value">
+                {{ displayDepartureTime }}
+              </span>
+            </button>
+            <input type="hidden" :value="form.departureTime" />
           </label>
         </div>
 
@@ -141,7 +151,7 @@
           </label>
 
           <label class="field">
-            <span>예상 결제 금액 (거리 기반)</span>
+            <span>예상 결제 금액</span>
             <input :value="preview.fare" type="text" readonly />
             <p class="hint">
               약 {{ distanceLabel }} · KakaoMap 거리 계산 기준
@@ -180,6 +190,41 @@
         </footer>
       </div>
     </div>
+
+    <div v-if="timePickerVisible" class="time-picker">
+      <div class="time-picker__backdrop" @click="closeTimePicker" aria-hidden="true"></div>
+      <div class="time-picker__panel" role="dialog" aria-modal="true">
+        <header class="time-picker__header">
+          <h3>출발 시간을 선택하세요</h3>
+          <p>아래 입력 또는 추천 시간 버튼으로 설정할 수 있어요.</p>
+        </header>
+        <div class="time-picker__body">
+          <input
+            class="time-picker__input"
+            type="time"
+            step="60"
+            v-model="timePickerValue"
+          />
+          <div class="time-picker__presets">
+            <button
+              v-for="preset in quickTimeOptions"
+              :key="preset"
+              type="button"
+              class="time-preset"
+              @click="timePickerValue = preset"
+            >
+              {{ preset }}
+            </button>
+          </div>
+        </div>
+        <footer class="time-picker__actions">
+          <button type="button" class="ghost-button" @click="closeTimePicker">취소</button>
+          <button type="button" class="primary-button" @click="confirmTimePicker">
+            확인
+          </button>
+        </footer>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -206,6 +251,7 @@ type SelectedPlace = {
 }
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
+const quickTimeOptions = ['06:00', '07:00', '08:00', '09:00', '10:00', '18:00'] as const
 const router = useRouter()
 
 const ownedPaymentMethods = getUserPaymentMethods('credit-card')
@@ -261,6 +307,8 @@ const mapPickerVisible = ref(false)
 const mapPickerTarget = ref<FieldKind | null>(null)
 const mapPickerCanvas = ref<HTMLDivElement | null>(null)
 const mapPickerPosition = reactive({ ...DEFAULT_CENTER })
+const timePickerVisible = ref(false)
+const timePickerValue = ref<string>('08:00')
 
 const errorMessage = ref('')
 const successMessage = ref('')
@@ -290,6 +338,11 @@ const preview = computed(() => ({
 const distanceLabel = computed(() => {
   if (!estimatedDistanceKm.value) return '거리 계산 중'
   return `${estimatedDistanceKm.value.toFixed(1)}km`
+})
+
+const displayDepartureTime = computed(() => {
+  if (!form.departureTime) return '출발 시간을 선택해주세요'
+  return form.departureTime
 })
 
 let kakaoApi: KakaoNamespace | null = null
@@ -475,6 +528,20 @@ async function confirmMapPicker() {
   }
   selectPlace(target, place)
   closeMapPicker()
+}
+
+function openTimePicker() {
+  timePickerValue.value = form.departureTime || '08:00'
+  timePickerVisible.value = true
+}
+
+function closeTimePicker() {
+  timePickerVisible.value = false
+}
+
+function confirmTimePicker() {
+  form.departureTime = timePickerValue.value
+  timePickerVisible.value = false
 }
 
 function reverseGeocode(position: { lat: number; lng: number }) {
@@ -756,6 +823,37 @@ fieldset.field,
   cursor: pointer;
 }
 
+.time-trigger {
+  width: 100%;
+  border-radius: 18px;
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  background: linear-gradient(180deg, #ffffff 0%, #fdfbf4 100%);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-strong);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.time-trigger.is-placeholder {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.time-trigger:hover {
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.time-trigger__value {
+  width: 100%;
+  text-align: center;
+}
+
 fieldset.field {
   padding: 1.1rem;
   border-radius: 24px;
@@ -971,6 +1069,89 @@ fieldset.field {
 .map-picker__actions .ghost-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.time-picker {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 21;
+}
+
+.time-picker__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+}
+
+.time-picker__panel {
+  position: relative;
+  width: min(460px, 92vw);
+  background: #ffffff;
+  border-radius: 32px;
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.time-picker__header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.time-picker__header p {
+  margin: 0.35rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.time-picker__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.time-picker__input {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0.85rem 1rem;
+  font-size: 1.1rem;
+  text-align: center;
+  background: #fefefe;
+}
+
+.time-picker__presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.5rem;
+}
+
+.time-preset {
+  border: none;
+  border-radius: 14px;
+  background: #fff6d5;
+  color: var(--color-text-strong);
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.time-preset:hover {
+  background: #fde7a3;
+}
+
+.time-picker__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
 
 
