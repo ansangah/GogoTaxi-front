@@ -21,13 +21,25 @@
         @pointercancel="onPointerCancel"
       >
         <span class="sheet__grip" />
-        <div>
-          <h1>탐색 중인 방</h1>
-          <p>{{ rooms.length }}개의 방을 찾았어요</p>
+        <div class="sheet__title">
+          <div class="sheet__title-text">
+            <h1>탐색 중인 방</h1>
+            <p>{{ rooms.length }}개의 방을 찾았어요</p>
+          </div>
         </div>
-        <button type="button" class="sheet__toggle" @click.stop="toggleSheet">
-          {{ sheetHeight === MAX_SHEET ? '지도 보기' : '전체 보기' }}
-        </button>
+        <div class="sheet__actions">
+          <button
+            type="button"
+            class="sheet__toggle"
+            aria-label="방 만들기 페이지로 이동"
+            @click.stop="goToCreateRoom"
+          >
+            방 만들기
+          </button>
+          <button type="button" class="sheet__toggle" @click.stop="toggleSheet">
+            {{ sheetHeight === MAX_SHEET ? '지도 보기' : '전체 보기' }}
+          </button>
+        </div>
       </header>
 
       <div
@@ -71,6 +83,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import RoomMap from '@/components/RoomMap.vue'
 import type { RoomPreview } from '@/types/rooms'
 
@@ -80,6 +93,7 @@ const MAX_SHEET = 100
 const SHEET_STATES = [COLLAPSED_SHEET, MID_SHEET, MAX_SHEET] as const
 const SNAP_THRESHOLD = 6
 
+const router = useRouter()
 const rooms = ref<RoomPreview[]>([
   {
     id: 'room-101',
@@ -282,6 +296,10 @@ function selectRoom(room: RoomPreview) {
   selectedRoom.value = selectedRoom.value?.id === room.id ? null : room
 }
 
+function goToCreateRoom() {
+  router.push({ name: 'create-room' })
+}
+
 watch(isCollapsed, (collapsed) => {
   if (collapsed) {
     scheduleCollapsedMeasurement()
@@ -400,9 +418,25 @@ onBeforeUnmount(() => {
   font-size: 13px;
   line-height: 1.35;
 }
+.sheet__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 auto;
+}
+.sheet__title-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sheet__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
 .sheet__toggle {
-  margin-left: auto;
   border: none;
   background: rgba(250, 204, 21, 0.15);
   color: #ca8a04;
