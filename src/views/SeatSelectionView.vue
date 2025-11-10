@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRoomMembership } from '@/composables/useRoomMembership'
 import { getRoomById } from '@/data/mockRooms'
@@ -93,6 +93,7 @@ const router = useRouter()
 const route = useRoute()
 const selectedSeat = ref<number | null>(null)
 const { joinedRooms, joinRoom: ensureRoom, updateSeat } = useRoomMembership()
+const originalOverflow = ref('')
 
 function seatStyle(seat: SeatInfo) {
   return {
@@ -121,12 +122,21 @@ function confirmSeat() {
     query: { seat: selectedSeat.value },
   })
 }
+
+onMounted(() => {
+  originalOverflow.value = document.body.style.overflow
+  document.body.style.overflow = 'hidden'
+})
+
+onBeforeUnmount(() => {
+  document.body.style.overflow = originalOverflow.value
+})
 </script>
 
 <style scoped>
 .seat-select {
   position: relative;
-  min-height: calc(100dvh - var(--header-h, 0px));
+  height: calc((var(--app-vh, 1vh) * 100) - var(--header-h, 0px) - var(--tab-h, 0px));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,6 +144,7 @@ function confirmSeat() {
   background: linear-gradient(180deg, #f5f5f5 0%, #eef2ff 65%, #e0e7ff 100%);
   color: #1f2937;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .seat-select::before,
