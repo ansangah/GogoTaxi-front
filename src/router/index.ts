@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // 페이지 import
-import MainPageView from '@/views/MainPageView.vue'
 import UserLoginView from '@/views/UserLoginView.vue'
 import UserRegisterView from '@/views/UserRegisterView.vue'
 import FindAccountView from '@/views/FindAccountView.vue'
@@ -24,12 +23,23 @@ const routes = [
     component: () => import('@/views/CreateRoomView.vue'),
     meta: { requiresAuth: true },
   },
-  { path: '/home', name: 'home', component: MainPageView, meta: { requiresAuth: true } },
+  {
+    path: '/split-payment',
+    name: 'split-payment',
+    component: () => import('@/views/SplitPaymentView.vue'),
+    meta: { requiresAuth: true, flushBottomNav: true, lockScroll: true },
+  },
+  {
+    path: '/home',
+    name: 'home',
+    component: () => import('@/views/MainPageView.vue'),
+    meta: { requiresAuth: true },
+  },
   {
     path: '/find-room',
     name: 'find-room',
     component: () => import('@/views/FindRoomView.vue'),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, lockScroll: true, flushBottomNav: true },
   },
   {
     path: '/my-rooms',
@@ -78,6 +88,12 @@ const routes = [
     name: 'seat-selection',
     component: () => import('@/views/SeatSelectionView.vue'),
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/rooms/:id',
+    name: 'room-detail',
+    component: () => import('@/views/RoomDetailView.vue'),
+    meta: { requiresAuth: true, flushBottomNav: true },
   },
   {
     path: '/payment-methods',

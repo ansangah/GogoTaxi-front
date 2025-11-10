@@ -14,6 +14,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { loadKakaoMaps } from '@/utils/kakaoMaps'
 import type { RoomPreview } from '@/types/rooms'
 import { loadKakaoMaps } from '@/services/kakaoMaps'
 
@@ -112,11 +113,11 @@ function initializeMap(kakao: KakaoNamespace) {
 
 onMounted(async () => {
   const kakao = await loadKakaoMaps()
-  if (!kakao) {
-    setError('카카오 지도 SDK를 불러오지 못했습니다.')
-    return
+  if (kakao) {
+    initializeMap(kakao)
+  } else {
+    setError('카카오 지도 SDK를 사용할 수 없습니다.')
   }
-  initializeMap(kakao)
 })
 
 watch(

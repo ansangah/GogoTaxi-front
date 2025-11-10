@@ -72,7 +72,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 interface SeatInfo {
   number: number
@@ -88,6 +88,7 @@ const seats: SeatInfo[] = [
 ]
 
 const router = useRouter()
+const route = useRoute()
 const selectedSeat = ref<number | null>(null)
 
 function seatStyle(seat: SeatInfo) {
@@ -103,8 +104,12 @@ function selectSeat(seatNumber: number) {
 
 function confirmSeat() {
   if (!selectedSeat.value) return
-  alert(`${selectedSeat.value}번 좌석으로 확정했습니다.`)
-  router.push({ name: 'home' })
+  const roomId = (route.query.roomId as string) || 'room-101'
+  router.push({
+    name: 'room-detail',
+    params: { id: roomId },
+    query: { seat: selectedSeat.value },
+  })
 }
 </script>
 
