@@ -36,7 +36,7 @@
         </dl>
         <footer class="room-card__actions">
           <button type="button" class="btn btn--primary" @click="enterRoom(entry)">
-            {{ entry.seatNumber ? '방 바로 입장' : '좌석 먼저 선택' }}
+            {{ entry.seatNumber ? '방 입장' : '좌석 먼저 선택' }}
           </button>
           <button type="button" class="btn btn--ghost" @click="dropRoom(entry.roomId)">
             방 나가기
@@ -196,7 +196,7 @@ function dropRoom(roomId: string) {
 
 .room-card {
   border-radius: 24px;
-  padding: clamp(20px, 4vw, 28px);
+  padding: clamp(16px, 3.2vw, 24px) clamp(20px, 4vw, 28px) clamp(22px, 4vw, 28px);
   background: #fff;
   border: 1px solid #f3d193;
   display: grid;
