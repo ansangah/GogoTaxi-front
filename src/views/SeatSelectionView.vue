@@ -241,9 +241,9 @@ function confirmSeat() {
   box-shadow: none;
 }
 .btn--primary {
-  background: linear-gradient(135deg, #fde047, #facc15);
+  background: #facc15;
   color: #3b2400;
-  box-shadow: 0 12px 22px rgba(250, 224, 71, 0.4);
+  box-shadow: none;
 }
 .btn--primary:hover:not(:disabled) {
   transform: translateY(-2px);

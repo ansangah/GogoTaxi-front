@@ -315,6 +315,8 @@ function goLatestNotice() {
 <style scoped>
 
 .main {
+  --notice-top-gap: clamp(24px, 6vh, 48px);
+  --notice-bottom-gap: clamp(10px, 2vh, 20px);
   min-height: calc(100dvh - var(--tab-h));
   padding-bottom: 0;
   background: #3a2e20;
@@ -487,7 +489,7 @@ function goLatestNotice() {
 
 .gateway {
   width: min(96%, 980px);
-  margin: clamp(0px, 1.6vh, 18px) auto 0;
+  margin: clamp(0px, 1.6vh, 18px) auto var(--notice-top-gap);
   padding: 0 clamp(18px, 6vw, 32px);
   display: grid;
   gap: clamp(20px, 3vw, 28px);
@@ -572,7 +574,7 @@ function goLatestNotice() {
 }
 .notice-banner {
   width: min(92%, 980px);
-  margin: clamp(-48px, -6vh, -24px) auto clamp(10px, 2vh, 20px);
+  margin: calc(var(--notice-top-gap) * -1) auto var(--notice-bottom-gap);
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.04);
@@ -636,11 +638,15 @@ function goLatestNotice() {
 }
 
 @media (min-width: 1024px) {
+  .main {
+    --notice-top-gap: clamp(18px, 4vh, 32px);
+    --notice-bottom-gap: clamp(14px, 2.2vh, 26px);
+  }
   .hero {
     padding-top: clamp(72px, 9vh, 124px);
   }
   .notice-banner {
-    margin: clamp(-32px, -4vh, -18px) auto clamp(14px, 2.2vh, 26px);
+    margin: calc(var(--notice-top-gap) * -1) auto var(--notice-bottom-gap);
   }
   .map-board {
     margin-bottom: clamp(20px, 3vh, 36px);
@@ -660,12 +666,16 @@ function goLatestNotice() {
 }
 
 @media (max-width: 820px) {
+  .main {
+    --notice-top-gap: 0px;
+    --notice-bottom-gap: clamp(24px, 4vh, 36px);
+  }
   .map-board {
     margin-bottom: clamp(32px, 6vh, 70px);
   }
   .notice-banner {
     width: min(96%, 860px);
-    margin: 0 auto clamp(24px, 4vh, 36px);
+    margin: calc(var(--notice-top-gap) * -1) auto var(--notice-bottom-gap);
   }
 }
 

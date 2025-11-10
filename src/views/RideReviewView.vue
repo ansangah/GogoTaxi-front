@@ -414,9 +414,9 @@ function submitReport() {
   box-shadow: 0 10px 20px rgba(79, 67, 56, 0.16);
 }
 .btn--primary {
-  background: linear-gradient(135deg, #fde047, #facc15);
+  background: #facc15;
   color: #3b2400;
-  box-shadow: 0 12px 22px rgba(250, 224, 71, 0.4);
+  box-shadow: none;
 }
 .btn--primary:hover:not(:disabled) {
   transform: translateY(-2px);
@@ -450,15 +450,13 @@ function submitReport() {
   z-index: 2000;
 }
 .report-card {
-  width: min(420px, 100%);
+  width: min(380px, 96%);
   background: #ffffff;
-  border-radius: 24px;
-  padding: 20px;
+  border-radius: 22px;
+  padding: 18px;
   box-shadow: 0 24px 48px rgba(20, 12, 6, 0.24);
   display: grid;
-  gap: 16px;
-  max-height: min(560px, 90vh);
-  overflow-y: auto;
+  gap: 12px;
 }
 .report-card__header {
   display: flex;
@@ -481,12 +479,13 @@ function submitReport() {
 }
 .report-card__desc {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   color: #6d6257;
 }
 .seat-layout {
   position: relative;
-  width: min(240px, 94%);
+  width: min(190px, 90%);
+  max-height: 240px;
   margin: 0 auto;
   aspect-ratio: 2 / 3;
 }
@@ -507,9 +506,9 @@ function submitReport() {
 .seat-marker {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: clamp(38px, 14vw, 48px);
-  height: clamp(46px, 16vw, 58px);
-  border-radius: 14px;
+  width: clamp(34px, 12vw, 44px);
+  height: clamp(40px, 14vw, 52px);
+  border-radius: 12px;
   border: 2px solid rgba(37, 99, 235, 0.16);
   box-shadow: 0 14px 24px rgba(15, 23, 42, 0.2);
   background:
@@ -531,12 +530,14 @@ function submitReport() {
   box-shadow: 0 18px 28px rgba(37, 99, 235, 0.24);
 }
 .seat-marker--driver {
-  border-color: rgba(234, 88, 12, 0.28);
-  background: linear-gradient(160deg, rgba(255, 244, 234, 0.94), rgba(254, 226, 182, 0.88));
-  color: #c2410c;
+  border-color: rgba(148, 163, 184, 0.4);
+  background: linear-gradient(160deg, rgba(229, 231, 235, 0.95), rgba(209, 213, 219, 0.85));
+  color: #6b7280;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 .seat-marker--rear-center {
-  width: clamp(44px, 16vw, 60px);
+  width: clamp(40px, 14vw, 54px);
 }
 .seat-marker--active {
   background: linear-gradient(150deg, #2563eb, #3b82f6);
@@ -546,7 +547,7 @@ function submitReport() {
 }
 .report-form {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 .report-form__hint {
   margin: 0;
@@ -570,7 +571,7 @@ function submitReport() {
 }
 .report-form__textarea {
   width: 100%;
-  min-height: 96px;
+  min-height: 80px;
   padding: 12px 14px;
   border-radius: 14px;
   border: 1px solid rgba(120, 92, 68, 0.2);
