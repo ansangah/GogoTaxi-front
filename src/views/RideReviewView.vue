@@ -305,15 +305,18 @@ function submitReport() {
 .rating {
   display: grid;
   gap: 12px;
+  justify-items: center;
 }
 .rating__label {
   margin: 0;
   color: #4f4338;
   font-weight: 600;
+  text-align: center;
 }
 .rating__stars {
   display: flex;
   gap: 12px;
+  justify-content: center;
 }
 .star-btn {
   width: 54px;
@@ -348,6 +351,7 @@ function submitReport() {
   color: #c47a00;
   font-weight: 600;
   font-size: 14px;
+  text-align: center;
 }
 .fade-enter-active,
 .fade-leave-active {
@@ -410,9 +414,9 @@ function submitReport() {
   box-shadow: 0 10px 20px rgba(79, 67, 56, 0.16);
 }
 .btn--primary {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
-  color: #fffaf0;
-  box-shadow: 0 12px 22px rgba(255, 149, 5, 0.35);
+  background: linear-gradient(135deg, #fde047, #facc15);
+  color: #3b2400;
+  box-shadow: 0 12px 22px rgba(250, 224, 71, 0.4);
 }
 .btn--primary:hover:not(:disabled) {
   transform: translateY(-2px);

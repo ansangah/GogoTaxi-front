@@ -72,7 +72,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 interface SeatInfo {
   number: number
@@ -88,7 +88,6 @@ const seats: SeatInfo[] = [
 ]
 
 const router = useRouter()
-const route = useRoute()
 const selectedSeat = ref<number | null>(null)
 
 function seatStyle(seat: SeatInfo) {
@@ -104,12 +103,8 @@ function selectSeat(seatNumber: number) {
 
 function confirmSeat() {
   if (!selectedSeat.value) return
-  const roomId = (route.query.roomId as string) || 'room-101'
-  router.push({
-    name: 'room-detail',
-    params: { id: roomId },
-    query: { seat: selectedSeat.value },
-  })
+  alert(`${selectedSeat.value}번 좌석으로 확정했습니다.`)
+  router.push({ name: 'home' })
 }
 </script>
 
@@ -246,9 +241,9 @@ function confirmSeat() {
   box-shadow: none;
 }
 .btn--primary {
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
-  color: #fffaf0;
-  box-shadow: 0 12px 22px rgba(37, 99, 235, 0.28);
+  background: linear-gradient(135deg, #fde047, #facc15);
+  color: #3b2400;
+  box-shadow: 0 12px 22px rgba(250, 224, 71, 0.4);
 }
 .btn--primary:hover:not(:disabled) {
   transform: translateY(-2px);
