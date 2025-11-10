@@ -553,13 +553,14 @@ function closeMapPicker() {
 async function setupMapPicker() {
   if (!mapPickerVisible.value || !kakaoApi || !mapPickerCanvas.value) return
   const center = new kakaoApi.maps.LatLng(mapPickerPosition.lat, mapPickerPosition.lng)
-  mapPickerMap = new kakaoApi.maps.Map(mapPickerCanvas.value, {
+  const pickerMap = new kakaoApi.maps.Map(mapPickerCanvas.value, {
     center,
     level: 4,
     draggable: true,
   })
-  mapPickerMap.setDraggable(true)
-  mapPickerMap.setZoomable(true)
+  pickerMap.setDraggable(true)
+  pickerMap.setZoomable(true)
+  mapPickerMap = pickerMap
   mapPickerMarker = new kakaoApi.maps.Marker({
     position: center,
     map: mapPickerMap,
