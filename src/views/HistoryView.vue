@@ -185,7 +185,6 @@ const goToReview = (rideId: number) => {
   background: #eeeff2;
   border-radius: 20px;
   padding: 1.5rem 1.45rem 1.3rem;
-  box-shadow: 0 18px 32px rgba(233, 184, 116, 0.2);
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
@@ -268,13 +267,12 @@ const goToReview = (rideId: number) => {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .action-button--primary {
   background: #3a2e20;
   color: #ffffff;
-  box-shadow: 0 12px 20px rgba(58, 46, 32, 0.35);
 }
 
 .action-button:hover {

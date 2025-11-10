@@ -794,7 +794,6 @@ fieldset.field,
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 32px;
-  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.08);
 }
 
 .page-header {
@@ -856,14 +855,13 @@ fieldset.field,
   border: 1px solid rgba(0, 0, 0, 0.12);
   padding: 0.85rem 1rem;
   background: #ffffff;
-  transition: border 0.2s ease, box-shadow 0.2s ease;
+  transition: border 0.2s ease;
 }
 
 .field input:focus,
 .field select:focus {
   outline: none;
   border-color: var(--color-button);
-  box-shadow: 0 0 0 3px rgba(253, 214, 81, 0.35);
 }
 
 .field--autocomplete .suggestion-list {
@@ -877,7 +875,6 @@ fieldset.field,
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: 16px;
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.12);
   max-height: 220px;
   overflow-y: auto;
   z-index: 5;
@@ -936,7 +933,7 @@ fieldset.field,
   font-weight: 600;
   color: var(--color-text-strong);
   cursor: pointer;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .time-trigger.is-placeholder {
@@ -945,7 +942,6 @@ fieldset.field,
 }
 
 .time-trigger:hover {
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
 }
 
@@ -988,14 +984,12 @@ fieldset.field {
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease;
+    color 0.2s ease;
 }
 
 .priority-chip.is-active {
   background: var(--color-button);
   border-color: var(--color-accent-border);
-  box-shadow: 0 0 0 2px rgba(244, 193, 69, 0.45);
   color: var(--color-button-text);
 }
 
@@ -1050,7 +1044,6 @@ fieldset.field {
   cursor: pointer;
   transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease,
     border-color 0.2s ease,
     background 0.2s ease;
   border: 1px solid var(--color-border);
@@ -1119,7 +1112,7 @@ fieldset.field {
   padding: 0.9rem 2.2rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .primary-button {
@@ -1148,7 +1141,6 @@ fieldset.field {
 .ghost-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 .primary-button:not(:disabled):hover,
@@ -1180,7 +1172,6 @@ fieldset.field {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
   position: relative;
   z-index: 1;
 }
@@ -1218,10 +1209,6 @@ fieldset.field {
   flex-wrap: wrap;
 }
 
-.map-picker__actions .ghost-button {
-  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.12);
-}
-
 .time-picker {
   position: fixed;
   inset: 0;
@@ -1246,7 +1233,6 @@ fieldset.field {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -1325,14 +1311,12 @@ fieldset.field {
   cursor: pointer;
   transition:
     background 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease;
+    color 0.2s ease;
 }
 
 .selector-chip.is-active {
   background: var(--color-button);
   color: var(--color-button-text);
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
 }
 
 .time-select {
@@ -1358,7 +1342,6 @@ fieldset.field {
 .time-select:focus {
   outline: none;
   border-color: var(--color-button);
-  box-shadow: 0 0 0 3px rgba(253, 214, 81, 0.35);
 }
 
 .time-picker__actions {

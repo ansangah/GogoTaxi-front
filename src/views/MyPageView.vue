@@ -137,7 +137,6 @@ const openProfileSettings = () => {
   padding: 1.55rem 1.5rem;
   background: #eeeff2;
   border-radius: 28px;
-  box-shadow: 0 24px 40px rgba(237, 173, 98, 0.18);
 }
 
 .avatar {
@@ -163,7 +162,6 @@ const openProfileSettings = () => {
   height: 28px;
   border-radius: 50%;
   background: #ffffff;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
   display: grid;
   place-items: center;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -228,7 +226,6 @@ const openProfileSettings = () => {
 .menu-block {
   background: #eeeff2;
   border-radius: 28px;
-  box-shadow: 0 22px 44px rgba(237, 173, 98, 0.16);
   padding: 1.35rem 1.25rem 1.6rem;
   display: flex;
   flex-direction: column;
@@ -261,13 +258,11 @@ const openProfileSettings = () => {
   font-weight: 600;
   color: #2f2f33;
   cursor: pointer;
-  box-shadow: 0 14px 22px rgba(203, 128, 38, 0.22);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .menu-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 26px rgba(203, 128, 38, 0.28);
 }
 
 .menu-item:focus-visible {
