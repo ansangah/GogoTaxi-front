@@ -32,7 +32,62 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { GeoPoint } from '@/types/rooms'
 import { loadKakaoMaps } from '@/utils/kakaoMaps'
 
-type KakaoNamespace = typeof window.kakao
+type KakaoLatLng = {
+  getLat(): number
+  getLng(): number
+}
+type KakaoMapInstance = {
+  setCenter(latlng: KakaoLatLng): void
+}
+type KakaoMarkerInstance = {
+  setPosition(latlng: KakaoLatLng): void
+  getPosition(): KakaoLatLng
+}
+type KakaoMouseClickEvent = {
+  latLng: KakaoLatLng
+}
+type KakaoGeocoderResult = {
+  x: string
+  y: string
+  address?: { address_name?: string }
+}
+type KakaoGeocoder = {
+  addressSearch(
+    query: string,
+    callback: (result: KakaoGeocoderResult[], status: string) => void,
+  ): void
+}
+type KakaoEventHandler = ((event: KakaoMouseClickEvent) => void) | (() => void)
+type KakaoNamespace = {
+  maps: {
+    LatLng: new (lat: number, lng: number) => KakaoLatLng
+    Map: new (
+      element: HTMLElement | null,
+      options: { center: KakaoLatLng; level: number },
+    ) => KakaoMapInstance
+    Marker: new (options: {
+      position: KakaoLatLng
+      draggable?: boolean
+      map?: KakaoMapInstance | null
+    }) => KakaoMarkerInstance
+    services: {
+      Geocoder: new () => KakaoGeocoder
+      Status: { OK: string }
+    }
+    event: {
+      addListener(
+        target: KakaoMapInstance | KakaoMarkerInstance,
+        type: string,
+        handler: KakaoEventHandler,
+      ): void
+      removeListener(
+        target: KakaoMapInstance | KakaoMarkerInstance,
+        type: string,
+        handler: KakaoEventHandler,
+      ): void
+    }
+  }
+}
 
 const props = defineProps<{
   title: string
@@ -51,15 +106,15 @@ const searchStatus = ref('')
 const searching = ref(false)
 
 let kakaoApi: KakaoNamespace | null = null
-let map: any = null
-let marker: any = null
-let clickHandler: any = null
-let geocoder: any = null
+let map: KakaoMapInstance | null = null
+let marker: KakaoMarkerInstance | null = null
+let clickHandler: ((event: KakaoMouseClickEvent) => void) | null = null
+let geocoder: KakaoGeocoder | null = null
 
 function setMarkerPosition(position: GeoPoint) {
   selectedPosition.value = position
   if (!marker || !kakaoApi) return
-  const latlng = new kakaoApi.maps.LatLng(position.lat, position.lng)
+  const latlng = new kakaoApi.maps.LatLng(position.lat, position.lng) as KakaoLatLng
   marker.setPosition(latlng)
   map?.setCenter(latlng)
 }
@@ -75,7 +130,7 @@ function searchAddress() {
     return
   }
   if (!geocoder && kakaoApi?.maps?.services) {
-    geocoder = new kakaoApi.maps.services.Geocoder()
+    geocoder = new kakaoApi.maps.services.Geocoder() as KakaoGeocoder
   }
   if (!geocoder) {
     searchStatus.value = '카카오 지도 서비스를 사용할 수 없습니다.'
@@ -83,13 +138,17 @@ function searchAddress() {
   }
   searching.value = true
   searchStatus.value = '검색 중...'
-  geocoder.addressSearch(query, (result: any[], status: string) => {
+  geocoder.addressSearch(query, (result: KakaoGeocoderResult[], status: string) => {
     searching.value = false
     if (status !== kakaoApi?.maps?.services?.Status.OK || !result?.length) {
       searchStatus.value = '주소를 찾지 못했어요. 다시 시도해 주세요.'
       return
     }
     const first = result[0]
+    if (!first) {
+      searchStatus.value = '주소를 찾지 못했어요. 다시 시도해 주세요.'
+      return
+    }
     const position = {
       lat: Number(first.y),
       lng: Number(first.x),
@@ -102,33 +161,40 @@ function searchAddress() {
 async function initMap() {
   const kakao = await loadKakaoMaps()
   if (!kakao) {
-    // eslint-disable-next-line no-console
     console.error('[LocationPicker] 카카오 지도를 불러오지 못했습니다.')
     return
   }
-  kakaoApi = kakao
-  const center = new kakao.maps.LatLng(selectedPosition.value.lat, selectedPosition.value.lng)
-  map = new kakao.maps.Map(mapEl.value, {
+  kakaoApi = kakao as unknown as KakaoNamespace
+  const center = new kakaoApi.maps.LatLng(
+    selectedPosition.value.lat,
+    selectedPosition.value.lng,
+  ) as KakaoLatLng
+  map = new kakaoApi.maps.Map(mapEl.value, {
     center,
     level: 4,
-  })
-  marker = new kakao.maps.Marker({
+  }) as KakaoMapInstance
+  marker = new kakaoApi.maps.Marker({
     position: center,
     draggable: true,
     map,
-  })
-  geocoder = new kakao.maps.services.Geocoder()
+  }) as KakaoMarkerInstance
+  geocoder = new kakaoApi.maps.services.Geocoder() as KakaoGeocoder
 
-  kakao.maps.event.addListener(marker, 'dragend', () => {
-    const position = marker.getPosition()
+  kakaoApi.maps.event.addListener(marker as KakaoMarkerInstance, 'dragend', () => {
+    const position = marker!.getPosition()
     selectedPosition.value = { lat: position.getLat(), lng: position.getLng() }
   })
 
-  clickHandler = kakao.maps.event.addListener(map, 'click', (mouseEvent: any) => {
+  const clickFn = (mouseEvent: KakaoMouseClickEvent) => {
     const latlng = mouseEvent.latLng
+    marker?.setPosition(latlng)
+    map?.setCenter(latlng)
     selectedPosition.value = { lat: latlng.getLat(), lng: latlng.getLng() }
-    marker.setPosition(latlng)
-  })
+  }
+  clickHandler = clickFn
+  if (map) {
+    kakaoApi.maps.event.addListener(map, 'click', clickFn)
+  }
 }
 
 watch(
