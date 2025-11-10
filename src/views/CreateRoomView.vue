@@ -1077,7 +1077,7 @@ fieldset.field {
   position: relative;
   width: 100%;
   max-width: 100%;
-  padding: 0.2rem clamp(0.5rem, 4vw, 1.2rem);
+  padding: 0.2rem clamp(1.4rem, 8vw, 2.8rem);
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -1124,11 +1124,11 @@ fieldset.field {
 }
 
 .carousel-nav--prev {
-  left: clamp(0.2rem, 3vw, 0.9rem);
+  left: clamp(0.2rem, 4vw, 1.6rem);
 }
 
 .carousel-nav--next {
-  right: clamp(0.2rem, 3vw, 0.9rem);
+  right: clamp(0.2rem, 4vw, 1.6rem);
 }
 
 .carousel-nav:disabled {
