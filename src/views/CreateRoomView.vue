@@ -556,7 +556,10 @@ async function setupMapPicker() {
   mapPickerMap = new kakaoApi.maps.Map(mapPickerCanvas.value, {
     center,
     level: 4,
+    draggable: true,
   })
+  mapPickerMap.setDraggable(true)
+  mapPickerMap.setZoomable(true)
   mapPickerMarker = new kakaoApi.maps.Marker({
     position: center,
     map: mapPickerMap,
@@ -568,6 +571,14 @@ async function setupMapPicker() {
     const position = mapPickerMarker.getPosition()
     mapPickerPosition.lat = position.getLat()
     mapPickerPosition.lng = position.getLng()
+  })
+
+  kakaoApi.maps.event.addListener(mapPickerMap, 'dragend', () => {
+    if (!mapPickerMap || !mapPickerMarker) return
+    const center = mapPickerMap.getCenter()
+    mapPickerMarker.setPosition(center)
+    mapPickerPosition.lat = center.getLat()
+    mapPickerPosition.lng = center.getLng()
   })
 
   kakaoApi.maps.event.addListener(mapPickerMap, 'click', (event: kakao.maps.event.MouseEvent) => {
@@ -1136,10 +1147,18 @@ fieldset.field {
 }
 
 .map-picker__canvas {
+  width: 100%;
   height: 360px;
   border-radius: 20px;
   border: 1px solid var(--color-border);
   overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-x pan-y;
+}
+
+.map-picker__canvas:active {
+  cursor: grabbing;
 }
 
 .map-picker__actions {

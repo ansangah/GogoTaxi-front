@@ -3,6 +3,7 @@ declare namespace kakao {
     type MapOptions = {
       center: LatLng
       level?: number
+      draggable?: boolean
     }
 
     class LatLng {
@@ -19,6 +20,9 @@ declare namespace kakao {
       constructor(container: HTMLElement, options?: MapOptions)
       setBounds(bounds: LatLngBounds): void
       setCenter(latlng: LatLng): void
+      getCenter(): LatLng
+      setDraggable(draggable: boolean): void
+      setZoomable(zoomable: boolean): void
     }
 
     class Marker {
