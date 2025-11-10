@@ -71,9 +71,13 @@ function formatDate(dateISO: string) {
 
 <style scoped>
 .notice {
-  padding: 2rem 1.25rem 4rem;
+  padding: 2rem 1.25rem calc(3rem + var(--safe-bottom));
   background: #3a2e20;
-  min-height: calc(100dvh - var(--header-h));
+  min-height: max(
+    0px,
+    calc(100dvh - var(--header-h) - var(--tab-h) - var(--safe-bottom) - var(--browser-ui-bottom))
+  );
+  box-sizing: border-box;
 }
 .notice__header {
   max-width: 960px;
