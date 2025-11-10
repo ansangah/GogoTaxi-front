@@ -113,32 +113,28 @@
               </div>
             </div>
 
-            <transition name="fade">
-              <p v-if="selectedSeat" key="selection" class="seat-card__selection">
-                {{ selectedSeat }}번 좌석을 선택했어요. 아래 신고 내용을 작성해 주세요.
-              </p>
-              <p v-else key="selection-hint" class="seat-card__selection--hint">
-                문제가 있었던 좌석을 눌러 신고를 시작해 주세요.
-              </p>
-            </transition>
+            <p v-if="selectedSeat" class="seat-card__selection">
+              {{ selectedSeat }}번 좌석을 선택했어요. 아래 신고 내용을 작성해 주세요.
+            </p>
+            <p v-else class="seat-card__selection--hint">
+              문제가 있었던 좌석을 눌러 신고를 시작해 주세요.
+            </p>
 
-            <transition name="fade">
-              <div v-if="selectedSeat !== null" key="report-form" class="report-form">
-                <label class="report-form__label" for="report-message">
-                  신고 내용<span aria-hidden="true" class="required-dot">•</span>
-                </label>
-                <textarea
-                  id="report-message"
-                  class="report-form__textarea"
-                  v-model="reportMessage"
-                  rows="3"
-                  placeholder="문제가 발생했던 상황과 이유를 구체적으로 적어 주세요."
-                />
-              </div>
-              <p v-else key="report-hint" class="report-form__hint">
-                좌석을 선택한 후 신고 내용을 작성해 주세요.
-              </p>
-            </transition>
+            <div v-if="selectedSeat !== null" class="report-form">
+              <label class="report-form__label" for="report-message">
+                신고 내용<span aria-hidden="true" class="required-dot">•</span>
+              </label>
+              <textarea
+                id="report-message"
+                class="report-form__textarea"
+                v-model="reportMessage"
+                rows="3"
+                placeholder="문제가 발생했던 상황과 이유를 구체적으로 적어주세요."
+              />
+            </div>
+            <p v-else class="report-form__hint">
+              좌석을 선택한 후 신고 내용을 작성해 주세요.
+            </p>
 
             <footer class="seat-card__actions seat-card__actions--report">
               <button type="button" class="btn btn--ghost" @click="closeReport">취소</button>
