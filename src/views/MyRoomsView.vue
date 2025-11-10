@@ -140,6 +140,7 @@ function dropRoom(roomId: string) {
   color: #3b2600;
   display: grid;
   gap: 28px;
+  align-content: start;
 }
 
 .my-rooms__hero {
@@ -200,6 +201,7 @@ function dropRoom(roomId: string) {
   border: 1px solid #f3d193;
   display: grid;
   gap: 16px;
+  align-self: start;
 }
 
 .room-card__header h2 {
@@ -270,6 +272,7 @@ function dropRoom(roomId: string) {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  align-items: flex-start;
 }
 
 .btn {

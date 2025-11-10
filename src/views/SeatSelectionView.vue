@@ -73,6 +73,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useRoomMembership } from '@/composables/useRoomMembership'
+import { getRoomById } from '@/data/mockRooms'
 
 interface SeatInfo {
   number: number
@@ -90,6 +92,7 @@ const seats: SeatInfo[] = [
 const router = useRouter()
 const route = useRoute()
 const selectedSeat = ref<number | null>(null)
+const { joinedRooms, joinRoom: ensureRoom, updateSeat } = useRoomMembership()
 
 function seatStyle(seat: SeatInfo) {
   return {
@@ -105,6 +108,13 @@ function selectSeat(seatNumber: number) {
 function confirmSeat() {
   if (!selectedSeat.value) return
   const roomId = (route.query.roomId as string) || 'room-101'
+  if (!joinedRooms.value.some(entry => entry.roomId === roomId)) {
+    const snapshot = getRoomById(roomId)
+    if (snapshot) {
+      ensureRoom(snapshot)
+    }
+  }
+  updateSeat(roomId, selectedSeat.value)
   router.push({
     name: 'room-detail',
     params: { id: roomId },
@@ -115,30 +125,58 @@ function confirmSeat() {
 
 <style scoped>
 .seat-select {
+  position: relative;
   min-height: calc(100dvh - var(--header-h, 0px));
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(60px, 12vh, 120px) clamp(18px, 6vw, 48px);
-  background: radial-gradient(circle at 20% 15%, rgba(255, 243, 210, 0.35), transparent 55%),
-    radial-gradient(circle at 80% 10%, rgba(186, 214, 255, 0.3), transparent 55%),
-    linear-gradient(180deg, #f3ede3 0%, #ffffff 100%);
+  padding: clamp(48px, 10vh, 110px) clamp(18px, 6vw, 52px);
+  background: linear-gradient(180deg, #f5f5f5 0%, #eef2ff 65%, #e0e7ff 100%);
+  color: #1f2937;
+  overflow: hidden;
 }
+
+.seat-select::before,
+.seat-select::after {
+  content: '';
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(60px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.seat-select::before {
+  width: 320px;
+  height: 320px;
+  top: 8%;
+  left: 10%;
+  background: rgba(79, 70, 229, 0.35);
+}
+
+.seat-select::after {
+  width: 360px;
+  height: 360px;
+  bottom: -14%;
+  right: -6%;
+  background: rgba(251, 191, 36, 0.4);
+}
+
 .seat-card {
   width: min(520px, 100%);
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.98);
   border-radius: 32px;
-  border: 1px solid rgba(120, 92, 68, 0.16);
-  box-shadow: 0 32px 60px rgba(24, 18, 12, 0.18);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 32px 60px rgba(15, 23, 42, 0.18);
   display: grid;
   gap: 20px;
-  padding: clamp(24px, 4vw, 32px);
+  padding: clamp(26px, 5vw, 34px);
 }
 .seat-card__header {
   display: grid;
   gap: 10px;
   text-align: center;
-  color: #2f241b;
+  color: #111827;
 }
 .seat-card__sub {
   margin: 0;
@@ -146,31 +184,35 @@ function confirmSeat() {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(69, 56, 42, 0.6);
+  color: rgba(79, 70, 229, 0.75);
 }
 .seat-card__header h1 {
   margin: 0;
-  font-size: clamp(22px, 4vw, 26px);
+  font-size: clamp(22px, 4vw, 28px);
 }
 .seat-card__desc {
   margin: 0;
-  color: #6d6257;
+  color: #4b5563;
   line-height: 1.6;
   font-size: 14px;
 }
 .seat-layout {
   position: relative;
-  width: min(300px, 100%);
+  width: min(240px, 94%);
   margin: 0 auto;
   aspect-ratio: 2 / 3;
+  background: linear-gradient(160deg, rgba(238, 242, 255, 0.9), rgba(224, 231, 255, 0.95));
+  border-radius: 30px;
+  padding: 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 .seat-layout__car {
   width: 100%;
   height: 100%;
   display: block;
-  border-radius: 32px;
-  background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.45), transparent 55%);
-  filter: drop-shadow(0 18px 34px rgba(15, 23, 42, 0.16));
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5), transparent 55%);
+  filter: drop-shadow(0 18px 34px rgba(79, 70, 229, 0.2));
 }
 .seat-layout__seats {
   position: absolute;
@@ -181,31 +223,30 @@ function confirmSeat() {
 .seat-marker {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: clamp(44px, 16vw, 56px);
-  height: clamp(52px, 18vw, 66px);
-  border-radius: 16px;
-  border: 2px solid rgba(37, 99, 235, 0.16);
-  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.2);
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 238, 255, 0.88) 100%);
+  width: clamp(38px, 14vw, 48px);
+  height: clamp(46px, 16vw, 58px);
+  border-radius: 14px;
+  border: 2px solid rgba(79, 70, 229, 0.2);
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.18);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.95), rgba(224, 231, 255, 0.88));
   display: grid;
   place-items: center;
   font-weight: 700;
   font-size: 16px;
-  color: #1d4ed8;
+  color: #4338ca;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
   pointer-events: auto;
 }
 .seat-marker:hover {
   transform: translate(-50%, -50%) translateY(-4px);
-  box-shadow: 0 18px 28px rgba(37, 99, 235, 0.24);
+  box-shadow: 0 18px 28px rgba(79, 70, 229, 0.26);
 }
 .seat-marker--active {
-  background: linear-gradient(150deg, #2563eb, #3b82f6);
+  background: linear-gradient(145deg, #4338ca, #6366f1);
   color: #ffffff;
   border-color: transparent;
-  box-shadow: 0 20px 32px rgba(37, 99, 235, 0.32);
+  box-shadow: 0 20px 32px rgba(79, 70, 229, 0.32);
 }
 .seat-marker span {
   pointer-events: none;
@@ -215,14 +256,14 @@ function confirmSeat() {
   margin: 0;
   text-align: center;
   font-size: 14px;
-  color: #4f4338;
+  color: #1f2937;
   padding: 12px 16px;
   border-radius: 16px;
-  background: rgba(248, 244, 236, 0.9);
+  background: rgba(226, 232, 240, 0.45);
 }
 .seat-card__selection--hint {
-  color: #6d6257;
-  background: rgba(240, 236, 229, 0.8);
+  color: #6b7280;
+  background: rgba(226, 232, 240, 0.3);
 }
 .seat-card__actions {
   display: flex;
@@ -232,8 +273,8 @@ function confirmSeat() {
 }
 .btn {
   border: none;
-  border-radius: 999px;
-  padding: 10px 20px;
+  border-radius: 16px;
+  padding: 12px 20px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -245,18 +286,10 @@ function confirmSeat() {
   transform: none;
   box-shadow: none;
 }
-.btn--ghost {
-  background: rgba(79, 67, 56, 0.1);
-  color: #4f4338;
-}
-.btn--ghost:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(79, 67, 56, 0.16);
-}
 .btn--primary {
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
-  color: #fffaf0;
-  box-shadow: 0 12px 22px rgba(37, 99, 235, 0.28);
+  background: #facc15;
+  color: #3b2400;
+  box-shadow: none;
 }
 .btn--primary:hover:not(:disabled) {
   transform: translateY(-2px);
@@ -264,7 +297,7 @@ function confirmSeat() {
 
 @media (max-width: 520px) {
   .seat-card {
-    padding: 24px;
+    padding: 22px;
   }
   .seat-card__actions {
     flex-direction: column-reverse;
