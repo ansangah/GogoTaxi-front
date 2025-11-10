@@ -128,21 +128,10 @@
           <label class="field field--payments">
             <span>결제수단</span>
             <div v-if="availablePaymentMethods.length" class="payment-carousel">
-              <button
-                type="button"
-                class="carousel-nav carousel-nav--prev"
-                :disabled="!canScrollPrev"
-                @click="scrollPayment('prev')"
-                aria-label="이전 결제수단 보기"
-              >
-                ‹
-              </button>
               <div
                 class="payment-carousel__track"
-                ref="paymentTrack"
                 role="radiogroup"
                 aria-label="등록된 결제수단"
-                @scroll="updatePaymentScrollState"
               >
                 <button
                   v-for="method in availablePaymentMethods"
@@ -161,15 +150,6 @@
                   </div>
                 </button>
               </div>
-              <button
-                type="button"
-                class="carousel-nav carousel-nav--next"
-                :disabled="!canScrollNext"
-                @click="scrollPayment('next')"
-                aria-label="다음 결제수단 보기"
-              >
-                ›
-              </button>
             </div>
             <p v-else class="hint">결제수단을 먼저 등록해 주세요.</p>
           </label>
@@ -274,7 +254,7 @@
 
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from 'vue'
+import { computed, nextTick, reactive, ref, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import type { RoomPreview } from '@/types/rooms'
 import { loadKakaoMaps, type KakaoNamespace } from '@/services/kakaoMaps'
@@ -363,56 +343,6 @@ watchEffect(() => {
   }
 
   form.paymentMethod = active.label
-})
-
-const paymentTrack = ref<HTMLDivElement | null>(null)
-const canScrollPrev = ref(false)
-const canScrollNext = ref(false)
-
-function updatePaymentScrollState() {
-  const track = paymentTrack.value
-  if (!track) {
-    canScrollPrev.value = false
-    canScrollNext.value = false
-    return
-  }
-  const tolerance = 1
-  canScrollPrev.value = track.scrollLeft > tolerance
-  canScrollNext.value = track.scrollLeft + track.clientWidth < track.scrollWidth - tolerance
-}
-
-function scrollPayment(direction: 'prev' | 'next') {
-  const track = paymentTrack.value
-  if (!track) return
-  const delta = direction === 'next' ? track.clientWidth : -track.clientWidth
-  const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth)
-  const target = Math.min(Math.max(track.scrollLeft + delta, 0), maxScroll)
-  track.scrollTo({ left: target, behavior: 'smooth' })
-  if (typeof window !== 'undefined') {
-    window.requestAnimationFrame(() => updatePaymentScrollState())
-  } else {
-    updatePaymentScrollState()
-  }
-}
-
-watch(paymentTrack, (el) => {
-  if (!el) {
-    canScrollPrev.value = false
-    canScrollNext.value = false
-    return
-  }
-  nextTick(() => {
-    updatePaymentScrollState()
-  })
-})
-
-onMounted(() => {
-  nextTick(() => updatePaymentScrollState())
-  window.addEventListener('resize', updatePaymentScrollState)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updatePaymentScrollState)
 })
 
 const departureQuery = ref('')
@@ -1076,20 +1006,23 @@ fieldset.field {
 }
 
 .payment-carousel {
+  --card-padding-inline: clamp(0.9rem, 5vw, 1.6rem);
   position: relative;
   width: 100%;
   max-width: 100%;
-  padding: 0.2rem clamp(1.4rem, 8vw, 2.8rem);
+  padding: 0.2rem var(--card-padding-inline);
   box-sizing: border-box;
   overflow: hidden;
 }
 
 .payment-carousel__track {
   display: flex;
-  gap: 0.85rem;
+  gap: 0;
   overflow-x: auto;
-  scroll-snap-type: x proximity;
-  padding: 0.4rem 0.2rem 0.6rem;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0;
+  padding: 0.4rem 0 0.6rem;
   margin: 0;
   box-sizing: border-box;
   scroll-behavior: smooth;
@@ -1106,52 +1039,15 @@ fieldset.field {
   border-radius: 999px;
 }
 
-.carousel-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background: #ffffff;
-  color: var(--color-text-strong);
-  font-size: 1.2rem;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-  z-index: 2;
-}
-
-.carousel-nav--prev {
-  left: clamp(0.2rem, 4vw, 1.6rem);
-}
-
-.carousel-nav--next {
-  right: clamp(0.2rem, 4vw, 1.6rem);
-}
-
-.carousel-nav:disabled {
-  opacity: 0.2;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.carousel-nav:not(:disabled):hover {
-  transform: translateY(calc(-50% - 1px));
-}
-
 .payment-card {
   padding: 0.85rem 0.9rem;
   border-radius: 18px;
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  min-width: clamp(150px, 60vw, 210px);
+  flex: 0 0 100%;
+  min-width: 100%;
   scroll-snap-align: start;
-  flex: 0 0 auto;
   cursor: pointer;
   transition:
     transform 0.2s ease,
