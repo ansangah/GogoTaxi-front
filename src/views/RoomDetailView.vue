@@ -1,5 +1,5 @@
 <template>
-  <section class="room-live">
+  <section v-if="room" class="room-live">
     <header class="room-live__header">
       <div class="room-live__eyebrow">현재 참여 중인 방</div>
       <h1>{{ room.title }}</h1>
@@ -122,7 +122,7 @@
         </article>
       </div>
     </section>
-  </template>
+</template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
@@ -133,10 +133,10 @@ import RouteMapBox from '@/components/RouteMapBox.vue'
 
 const route = useRoute()
 const router = useRouter()
-const fallbackRoom = mockRooms[0]
+const fallbackRoomId = mockRooms[0]?.id ?? ''
 
-const roomId = computed(() => (route.params.id as string) || fallbackRoom.id)
-const room = computed(() => getRoomById(roomId.value) ?? fallbackRoom)
+const roomId = computed(() => (route.params.id as string | undefined) ?? fallbackRoomId)
+const room = computed<RoomPreview | null>(() => getRoomById(roomId.value) ?? null)
 const seatNumber = computed(() => {
   const seatQuery = route.query.seat
   if (!seatQuery) return null
@@ -156,9 +156,10 @@ const participants = computed(() => [
   },
 ])
 const participantCount = computed(() => Math.max(participants.value.length, 1))
-const perPersonFare = computed(() =>
-  room.value.fare ? Math.round(room.value.fare / participantCount.value) : undefined,
-)
+const perPersonFare = computed(() => {
+  const fare = room.value?.fare
+  return fare ? Math.round(fare / participantCount.value) : undefined
+})
 
 const showRouteMap = ref(false)
 
@@ -195,7 +196,7 @@ const STATUS_DESCRIPTIONS: Record<DispatchStatus, string> = {
 }
 
 const statusInfo = computed(() => {
-  const currentStatus = (room.value.status as DispatchStatus) ?? 'recruiting'
+  const currentStatus = (room.value?.status as DispatchStatus | undefined) ?? 'recruiting'
   return {
     key: currentStatus,
     label: STATUS_LABELS[currentStatus],
@@ -203,7 +204,7 @@ const statusInfo = computed(() => {
   }
 })
 
-const showTaxiInfo = computed(() => room.value.status === 'success' && room.value.taxi)
+const showTaxiInfo = computed(() => room.value?.status === 'success' && room.value?.taxi)
 
 function formatFare(amount?: number) {
   if (amount == null) return '확정 전'
