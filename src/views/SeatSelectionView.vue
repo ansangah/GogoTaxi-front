@@ -2,13 +2,11 @@
   <section class="seat-select">
     <div class="seat-card">
       <header class="seat-card__header">
-        <p class="seat-card__sub">
-          배차 완료<br />
-          <span>안내</span>
-        </p>
-        <h1>탑승하실 좌석을 골라주세요</h1>
+        <p class="seat-card__sub">배차 완료</p>
+        <h1>탑승 좌석 선택</h1>
         <p class="seat-card__desc">
-          운전석은 기사님 좌석으로 이미 배정되어 있어요. 나머지 좌석 중에서 원하는 자리 한 곳을 선택하면 됩니다.
+          운전석은 기사님 좌석으로 이미 배정되어 있어요.<br>나머지 좌석 중에서 원하는 자리 한 곳을
+          선택하면 됩니다.
         </p>
       </header>
 
@@ -244,16 +242,16 @@ onBeforeUnmount(() => {
 .seat-card__selection--hint {
   margin: 0;
   text-align: center;
-  font-size: 20px;
-  font-weight: 600;
-  color: #a16207;
-  padding: 14px 18px;
-  border-radius: 999px;
-  background: rgba(250, 204, 21, 0.18);
+  font-size: 14px;
+  font-weight: 500;
+  color: #7c2d12;
+  padding: 8px 0;
 }
 .seat-card__selection--hint {
-  color: rgba(161, 98, 7, 0.7);
-  background: rgba(250, 204, 21, 0.12);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #b86a1a;
 }
 .seat-card__actions {
   display: flex;
