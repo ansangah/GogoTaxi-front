@@ -790,7 +790,6 @@ function submitForm() {
 .preview-card,
 .form,
 fieldset.field,
-.payment-card,
 .map-picker__panel {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -1061,7 +1060,6 @@ fieldset.field {
 
 .payment-card.is-active {
   border-color: var(--color-accent-border);
-  box-shadow: 0 0 0 2px rgba(244, 193, 69, 0.45);
   background: var(--color-button);
   transform: translateY(-2px);
   color: var(--color-button-text);
@@ -1128,25 +1126,22 @@ fieldset.field {
   background: var(--color-button);
   color: var(--color-button-text);
   border: none;
-  box-shadow: 0 12px 20px rgba(253, 214, 81, 0.35);
 }
 
 .ghost-button {
   background: #ffffff;
   color: var(--color-text-strong);
   border: 1px solid var(--color-border);
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
 }
 
 .reset-button {
   background: #ff6b6b;
   border-color: #ff6b6b;
   color: #ffffff;
-  box-shadow: 0 18px 28px rgba(255, 107, 107, 0.32);
 }
 
 .reset-button:not(:disabled):hover {
-  box-shadow: 0 20px 34px rgba(255, 107, 107, 0.38);
+  transform: none;
 }
 
 .primary-button:disabled,
