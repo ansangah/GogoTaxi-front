@@ -661,7 +661,6 @@ const submitPassword = () => {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
 }
 
 .password-copy h2 {
@@ -695,13 +694,11 @@ const submitPassword = () => {
   padding: 0.55rem 1.5rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 14px 26px rgba(255, 119, 95, 0.22);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .password-manage-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 28px rgba(255, 119, 95, 0.3);
 }
 
 .password-manage-button:focus-visible {
@@ -787,7 +784,6 @@ const submitPassword = () => {
   background: #eeeff2;
   border-radius: 24px;
   padding: 1.4rem;
-  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   gap: 1rem;

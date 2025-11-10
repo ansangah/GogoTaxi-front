@@ -389,7 +389,6 @@ onBeforeUnmount(() => {
   width: 100%;
   background: #eeeff2;
   border-radius: 24px;
-  box-shadow: 0 18px 32px rgba(238, 187, 110, 0.22);
   padding: 2.05rem 1.8rem 2.4rem;
   display: flex;
   flex-direction: column;
@@ -412,7 +411,6 @@ onBeforeUnmount(() => {
 .info-list {
   background: #eeeff2;
   border-radius: 18px;
-  box-shadow: 0 12px 20px rgba(237, 173, 98, 0.12);
   border: 1px solid rgba(47, 47, 51, 0.05);
   padding: 1.4rem 1.4rem 1.5rem;
   display: flex;
@@ -467,7 +465,7 @@ onBeforeUnmount(() => {
   font-weight: 600;
   padding: 0.4rem 0.85rem;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .info-action--ghost {
@@ -478,7 +476,6 @@ onBeforeUnmount(() => {
 
 .info-action:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 16px rgba(203, 128, 38, 0.24);
 }
 
 .info-action:focus-visible {
@@ -507,13 +504,12 @@ onBeforeUnmount(() => {
   font-size: 0.95rem;
   background: #fff;
   color: #2f2f33;
-  transition: border 0.2s ease, box-shadow 0.2s ease;
+  transition: border 0.2s ease;
 }
 
 .info-input:focus {
   outline: none;
   border-color: #f0a545;
-  box-shadow: 0 0 0 3px rgba(240, 165, 69, 0.25);
 }
 
 .info-error {
@@ -537,7 +533,7 @@ onBeforeUnmount(() => {
   background: #fdd651;
   color: #4e2d04;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .editor-button--primary {
@@ -547,7 +543,6 @@ onBeforeUnmount(() => {
 
 .editor-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 18px rgba(203, 128, 38, 0.25);
 }
 
 .editor-button:focus-visible {
@@ -564,14 +559,12 @@ onBeforeUnmount(() => {
   font-weight: 600;
   color: #ffffff;
   background: linear-gradient(135deg, #ff9c8b 0%, #ff775f 100%);
-  box-shadow: 0 16px 26px rgba(255, 119, 95, 0.28);
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .logout-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 28px rgba(255, 119, 95, 0.35);
 }
 
 .logout-button:focus-visible {
@@ -613,7 +606,6 @@ onBeforeUnmount(() => {
   border-radius: 24px;
   padding: 1.8rem 1.6rem 1.4rem;
   text-align: center;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18);
 }
 
 .alert-card h3 {
@@ -645,18 +637,16 @@ onBeforeUnmount(() => {
   cursor: pointer;
   background: #fdd651;
   color: #4e2d04;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .alert-button--primary {
   background: #fdd651;
   color: #4e2d04;
-  box-shadow: 0 12px 20px rgba(203, 128, 38, 0.24);
 }
 
 .alert-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 20px rgba(203, 128, 38, 0.24);
 }
 
 .alert-button:focus-visible {
