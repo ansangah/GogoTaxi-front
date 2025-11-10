@@ -18,7 +18,7 @@
               v-model.trim="form.title"
               type="text"
               maxlength="25"
-              placeholder="꼬꼬택과 함께 해요!"
+              placeholder="꼬꼬택과 고고 택시~"
             />
           </label>
 
@@ -125,26 +125,50 @@
         </fieldset>
 
         <div class="form-grid">
-          <label class="field">
+          <label class="field field--payments">
             <span>결제수단</span>
-            <div v-if="availablePaymentMethods.length" class="payment-methods" role="radiogroup">
+            <div v-if="availablePaymentMethods.length" class="payment-carousel">
               <button
-                v-for="method in availablePaymentMethods"
-                :key="method.id"
                 type="button"
-                class="payment-card"
-                :class="{ 'is-active': method.id === selectedPaymentMethodId }"
-                @click="selectPaymentMethod(method.id)"
+                class="carousel-nav carousel-nav--prev"
+                :disabled="!canScrollPrev"
+                @click="scrollPayment('prev')"
+                aria-label="이전 결제수단 보기"
               >
-                <div class="payment-card__icon" :data-brand="method.brand ?? 'card'">
-                  {{ method.iconText }}
-                </div>
-                <div class="payment-card__text">
-                  <p class="payment-card__name">{{ method.label }}</p>
-                  <p v-if="method.description" class="payment-card__desc">
-                    {{ method.description }}
-                  </p>
-                </div>
+                ‹
+              </button>
+              <div
+                class="payment-carousel__track"
+                ref="paymentTrack"
+                role="radiogroup"
+                aria-label="등록된 결제수단"
+                @scroll="updatePaymentScrollState"
+              >
+                <button
+                  v-for="method in availablePaymentMethods"
+                  :key="method.id"
+                  type="button"
+                  class="payment-card"
+                  :class="{ 'is-active': method.id === selectedPaymentMethodId }"
+                  @click="selectPaymentMethod(method.id)"
+                  :aria-pressed="method.id === selectedPaymentMethodId"
+                >
+                  <div class="payment-card__icon" :data-brand="method.brand ?? 'card'">
+                    {{ method.iconText }}
+                  </div>
+                  <div class="payment-card__text">
+                    <p class="payment-card__name">{{ method.label }}</p>
+                  </div>
+                </button>
+              </div>
+              <button
+                type="button"
+                class="carousel-nav carousel-nav--next"
+                :disabled="!canScrollNext"
+                @click="scrollPayment('next')"
+                aria-label="다음 결제수단 보기"
+              >
+                ›
               </button>
             </div>
             <p v-else class="hint">결제수단을 먼저 등록해 주세요.</p>
@@ -179,7 +203,7 @@
           <h3>
             {{ mapPickerTarget === 'arrival' ? '도착지' : '출발지' }} 위치를 지도에서 선택하세요
           </h3>
-          <p>지도나 핀을 드래그해 위치를 조정하고, 하단 버튼으로 확정하세요.</p>
+          <p>지도나 핀을 드래그해 위치를 조정하세요.</p>
         </header>
         <div class="map-picker__canvas" ref="mapPickerCanvas"></div>
         <footer class="map-picker__actions">
@@ -250,12 +274,12 @@
 
 
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref, watch, watchEffect } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import type { RoomPreview } from '@/types/rooms'
 import { loadKakaoMaps, type KakaoNamespace } from '@/services/kakaoMaps'
 import {
-  getUserPaymentMethods,
+  createPaymentSections,
   type PaymentMethod as StoredPaymentMethod,
 } from '@/data/paymentMethods'
 import { addRoom } from '@/data/roomsStore'
@@ -298,20 +322,10 @@ const hourOptions = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10',
 const minuteOptions = Array.from({ length: 60 }, (_, idx) => idx.toString().padStart(2, '0')) as string[]
 const router = useRouter()
 
-const ownedPaymentMethods = getUserPaymentMethods('credit-card')
-const fallbackPaymentMethod: StoredPaymentMethod = {
-  id: 'manual',
-  label: '현장 결제',
-  description: '기사님께 직접 결제',
-  iconText: '₩',
-}
-const availablePaymentMethods: StoredPaymentMethod[] = [
-  ...ownedPaymentMethods,
-  fallbackPaymentMethod,
-]
-const selectedPaymentMethodId = ref<string>(
-  availablePaymentMethods[0]?.id ?? fallbackPaymentMethod.id,
+const availablePaymentMethods: StoredPaymentMethod[] = createPaymentSections().flatMap((section) =>
+  section.items.map((item) => ({ ...item })),
 )
+const selectedPaymentMethodId = ref<string>(availablePaymentMethods[0]?.id ?? '')
 
 const priorityOptions = [
   { value: 'time', label: '시간 우선', description: '' },
@@ -332,10 +346,70 @@ const selectPaymentMethod = (id: string) => {
 }
 
 watchEffect(() => {
-  const active =
-    availablePaymentMethods.find((method) => method.id === selectedPaymentMethodId.value) ??
-    fallbackPaymentMethod
+  const active = availablePaymentMethods.find(
+    (method) => method.id === selectedPaymentMethodId.value,
+  )
+
+  if (!active) {
+    form.paymentMethod = ''
+    if (availablePaymentMethods[0]) {
+      selectedPaymentMethodId.value = availablePaymentMethods[0].id
+      form.paymentMethod = availablePaymentMethods[0].label
+    }
+    return
+  }
+
   form.paymentMethod = active.label
+})
+
+const paymentTrack = ref<HTMLDivElement | null>(null)
+const canScrollPrev = ref(false)
+const canScrollNext = ref(false)
+
+function updatePaymentScrollState() {
+  const track = paymentTrack.value
+  if (!track) {
+    canScrollPrev.value = false
+    canScrollNext.value = false
+    return
+  }
+  const tolerance = 1
+  canScrollPrev.value = track.scrollLeft > tolerance
+  canScrollNext.value = track.scrollLeft + track.clientWidth < track.scrollWidth - tolerance
+}
+
+function scrollPayment(direction: 'prev' | 'next') {
+  const track = paymentTrack.value
+  if (!track) return
+  const delta = direction === 'next' ? track.clientWidth : -track.clientWidth
+  const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth)
+  const target = Math.min(Math.max(track.scrollLeft + delta, 0), maxScroll)
+  track.scrollTo({ left: target, behavior: 'smooth' })
+  if (typeof window !== 'undefined') {
+    window.requestAnimationFrame(() => updatePaymentScrollState())
+  } else {
+    updatePaymentScrollState()
+  }
+}
+
+watch(paymentTrack, (el) => {
+  if (!el) {
+    canScrollPrev.value = false
+    canScrollNext.value = false
+    return
+  }
+  nextTick(() => {
+    updatePaymentScrollState()
+  })
+})
+
+onMounted(() => {
+  nextTick(() => updatePaymentScrollState())
+  window.addEventListener('resize', updatePaymentScrollState)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updatePaymentScrollState)
 })
 
 const departureQuery = ref('')
@@ -372,7 +446,7 @@ const isValid = computed(() => {
 })
 
 const preview = computed(() => ({
-  title: form.title.trim() || '꼬꼬택과 함께 해요!',
+  title: form.title.trim() || '꼬꼬택과 고고 택시~',
   subtitle: `${form.departure?.name ?? '출발지 미정'} → ${form.arrival?.name ?? '도착지 미정'}`,
   departure: form.departure?.address ?? '출발지',
   arrival: form.arrival?.address ?? '도착지',
@@ -709,7 +783,7 @@ function resetForm() {
   estimatedDistanceKm.value = 0
   errorMessage.value = ''
   successMessage.value = ''
-  selectedPaymentMethodId.value = availablePaymentMethods[0]?.id ?? fallbackPaymentMethod.id
+  selectedPaymentMethodId.value = availablePaymentMethods[0]?.id ?? ''
 }
 
 function submitForm() {
@@ -725,7 +799,7 @@ function submitForm() {
 
   const newRoom: RoomPreview = {
     id: `room-${Date.now()}`,
-    title: form.title.trim() || '꼬꼬택과 함께 해요!',
+    title: form.title.trim() || '꼬꼬택과 고고 택시~',
     departure: {
       label: form.departure.name,
       position: { ...form.departure.position },
@@ -736,11 +810,11 @@ function submitForm() {
     },
     time: preview.value.time,
     seats: form.priority === 'seats' ? 3 : 2,
-    tags: [
-      form.priority === 'time' ? '시간 우선' : '인원 우선',
-      form.paymentMethod || '현장 결제',
-    ],
-  }
+  tags: [
+    form.priority === 'time' ? '시간 우선' : '인원 우선',
+    form.paymentMethod || '결제수단 미지정',
+  ],
+}
 
   addRoom(newRoom)
   successMessage.value = ''
@@ -766,6 +840,7 @@ function submitForm() {
   min-height: 100dvh;
   background: var(--color-background);
   color: var(--color-text-strong);
+  overflow-x: hidden;
 }
 
 .create-room__container {
@@ -775,6 +850,7 @@ function submitForm() {
   display: flex;
   flex-direction: column;
   gap: clamp(18px, 3vw, 32px);
+  overflow-x: hidden;
 }
 
 .page-header,
@@ -989,18 +1065,88 @@ fieldset.field {
   color: var(--color-button-text);
 }
 
-.payment-methods {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+.field--payments {
+  overflow: hidden;
+  padding-bottom: 0.3rem;
+}
+
+.payment-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  padding: 0.2rem clamp(0.5rem, 4vw, 1.2rem);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.payment-carousel__track {
+  display: flex;
   gap: 0.85rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 0 0.2rem;
+  margin: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+}
+
+.payment-carousel__track::-webkit-scrollbar {
+  height: 6px;
+}
+
+.payment-carousel__track::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+}
+
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: #ffffff;
+  color: var(--color-text-strong);
+  font-size: 1.2rem;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  z-index: 2;
+}
+
+.carousel-nav--prev {
+  left: clamp(0.2rem, 3vw, 0.9rem);
+}
+
+.carousel-nav--next {
+  right: clamp(0.2rem, 3vw, 0.9rem);
+}
+
+.carousel-nav:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.carousel-nav:not(:disabled):hover {
+  transform: translateY(calc(-50% - 1px));
 }
 
 .payment-card {
-  padding: 0.95rem 1rem;
+  padding: 0.9rem 1rem;
   border-radius: 20px;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: clamp(180px, 70vw, 240px);
+  scroll-snap-align: start;
+  flex: 0 0 auto;
   cursor: pointer;
   transition:
     transform 0.2s ease,
@@ -1036,8 +1182,7 @@ fieldset.field {
   color: var(--color-text-strong);
 }
 
-.payment-card.is-active .payment-card__name,
-.payment-card.is-active .payment-card__desc {
+.payment-card.is-active .payment-card__name {
   color: var(--color-button-text);
 }
 
@@ -1045,7 +1190,15 @@ fieldset.field {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem;
+}
+
+.payment-card__name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: inherit;
+  line-height: 1.35;
 }
 
 .hint {
@@ -1320,8 +1473,7 @@ fieldset.field {
 
 
 @media (max-width: 600px) {
-  .form-grid,
-  .payment-methods {
+  .form-grid {
     grid-template-columns: 1fr;
   }
 }
