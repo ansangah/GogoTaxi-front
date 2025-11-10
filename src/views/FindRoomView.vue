@@ -966,22 +966,19 @@ onBeforeUnmount(() => {
   border-radius: 20px;
   border: 1px solid rgba(234, 179, 8, 0.4);
   background: rgba(255, 251, 235, 0.92);
-  box-shadow: 0 12px 24px rgba(202, 138, 4, 0.18);
   display: grid;
   gap: 12px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+  transition: transform 0.2s ease, border 0.2s ease, background 0.2s ease;
   overflow-anchor: none;
 }
 
 .room-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 28px rgba(202, 138, 4, 0.28);
 }
 
 .room-card--active {
   border-color: rgba(217, 119, 6, 0.75);
-  box-shadow: 0 20px 40px rgba(202, 138, 4, 0.4);
   background: rgba(254, 240, 138, 0.95);
 }
 
