@@ -297,6 +297,7 @@ function getCurrentSeoulTime() {
 }
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 }
+const DEFAULT_ROOM_CAPACITY = 4
 const periodOptions = ['오전', '오후'] as const
 const hourOptions = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'] as const
 const minuteOptions = Array.from({ length: 60 }, (_, idx) => idx.toString().padStart(2, '0')) as string[]
@@ -730,6 +731,10 @@ function submitForm() {
 
   if (!form.departure || !form.arrival) return
 
+  const remainingSeats = form.priority === 'seats' ? 3 : 2
+  const capacity = DEFAULT_ROOM_CAPACITY
+  const filled = Math.max(0, capacity - remainingSeats)
+
   const newRoom: RoomPreview = {
     id: `room-${Date.now()}`,
     title: form.title.trim() || '꼬꼬택과 고고 택시~',
@@ -742,10 +747,12 @@ function submitForm() {
       position: { ...form.arrival.position },
     },
     time: preview.value.time,
-    seats: form.priority === 'seats' ? 3 : 2,
-  tags: [
-    form.priority === 'time' ? '시간 우선' : '인원 우선',
-    form.paymentMethod || '결제수단 미지정',
+    seats: remainingSeats,
+    capacity,
+    filled,
+    tags: [
+      form.priority === 'time' ? '시간 우선' : '인원 우선',
+      form.paymentMethod || '결제수단 미지정',
   ],
 }
 

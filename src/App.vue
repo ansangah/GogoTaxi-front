@@ -2,12 +2,7 @@
   <div id="app" class="app-shell">
     <AppHeader />
 
-    <main
-      class="app-content"
-      :style="hideBottomTab
-        ? { paddingBottom: '0', minHeight: 'calc(100dvh - var(--header-h))' }
-        : {}"
-    >
+    <main class="app-content" :style="contentStyle">
       <router-view />
     </main>
 
@@ -25,11 +20,31 @@ import BottomTab from '@/components/BottomTab.vue'
 
 const route = useRoute()
 
-// 로그인/회원가입/비번찾기 같은 페이지에서 탭 숨기고 싶으면 meta로 제어하는 게 가장 유연함
-const hideBottomTab = computed(() => {
-  // 1) 라우트 이름으로 간단히: return route.name === 'login'
-  // 2) meta로 더 확장 가능:
-  return Boolean(route.meta?.hideBottomNav)
+// Routes such as login/register set meta.hideBottomNav to hide the tab bar.
+const hideBottomTab = computed(() => Boolean(route.meta?.hideBottomNav))
+
+const VIEWPORT_VAR = '--browser-ui-bottom'
+
+function updateBrowserUiOffset() {
+  if (typeof window === 'undefined') return
+  const vv = window.visualViewport
+  const offset = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0
+  document.documentElement.style.setProperty(VIEWPORT_VAR, `${offset}px`)
+}
+
+const handleViewportChange = () => updateBrowserUiOffset()
+
+onMounted(() => {
+  updateBrowserUiOffset()
+  if (typeof window === 'undefined' || !window.visualViewport) return
+  window.visualViewport.addEventListener('resize', handleViewportChange)
+  window.visualViewport.addEventListener('scroll', handleViewportChange)
+})
+
+onBeforeUnmount(() => {
+  if (typeof window === 'undefined' || !window.visualViewport) return
+  window.visualViewport.removeEventListener('resize', handleViewportChange)
+  window.visualViewport.removeEventListener('scroll', handleViewportChange)
 })
 
 const lockContentScroll = computed(() => Boolean(route.meta?.lockScroll))
@@ -91,4 +106,3 @@ body {
   min-height: calc(100dvh - var(--header-h));
 }
 </style>
-

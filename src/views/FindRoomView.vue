@@ -656,8 +656,8 @@ onBeforeUnmount(() => {
 <style scoped>
 .find-room {
   position: relative;
-  height: 100%;
-  min-height: 100%;
+  width: 100%;
+  min-height: calc(100dvh - var(--header-h));
   background: #f5f5f5;
   color: #1f2937;
   overflow: hidden;

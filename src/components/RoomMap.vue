@@ -14,9 +14,8 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { loadKakaoMaps } from '@/utils/kakaoMaps'
-import type { RoomPreview } from '@/types/rooms'
 import { loadKakaoMaps } from '@/services/kakaoMaps'
+import type { RoomPreview } from '@/types/rooms'
 
 type KakaoNamespace = typeof window.kakao
 
