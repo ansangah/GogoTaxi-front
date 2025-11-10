@@ -1217,17 +1217,21 @@ fieldset.field {
 }
 
 .time-picker__selectors {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1.15fr repeat(2, minmax(90px, 0.85fr));
   gap: 0.75rem;
-  flex-wrap: wrap;
+  align-items: stretch;
 }
 
 .time-column {
-  flex: 1;
-  min-width: 120px;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  min-width: 0;
+}
+
+.time-column .chip-group {
+  flex-wrap: nowrap;
 }
 
 .time-column p {
@@ -1266,8 +1270,8 @@ fieldset.field {
   width: 100%;
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.12);
-  padding: 0.7rem 1rem;
-  font-size: 1rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.95rem;
   font-weight: 600;
   background: #f8f9ff;
   color: var(--color-text-strong);
