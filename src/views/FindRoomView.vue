@@ -300,7 +300,7 @@ function parseRoomDeparture(room: RoomPreview) {
   if (!match) return null
   const [hours, minutes] = match.slice(1).map(Number)
   const date = new Date()
-  date.setHours(hours, minutes, 0, 0)
+  date.setHours(hours ?? 0, minutes ?? 0, 0, 0)
   return date
 }
 
@@ -317,7 +317,7 @@ function parsePreferredDepartureTime() {
   const minute = Number(preferredMinute.value)
   if (Number.isNaN(minute)) return null
   const date = new Date()
-  date.setHours(hour, minute, 0, 0)
+  date.setHours(hour ?? 0, minute ?? 0, 0, 0)
   return date
 }
 

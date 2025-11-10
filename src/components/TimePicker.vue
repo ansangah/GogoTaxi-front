@@ -76,8 +76,8 @@ const hours = Array.from({ length: 12 }, (_, idx) => String(idx + 1).padStart(2,
 const minutes = Array.from({ length: 6 }, (_, idx) => String(idx * 10).padStart(2, '0'))
 
 const localPeriod = ref<'AM' | 'PM'>(props.period ?? 'AM')
-const localHour = ref(props.hour || hours[0])
-const localMinute = ref(props.minute || minutes[0])
+const localHour = ref<string>(props.hour ?? hours[0])
+const localMinute = ref<string>(props.minute ?? minutes[0])
 
 watch(
   () => props.period,
