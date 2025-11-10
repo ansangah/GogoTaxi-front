@@ -2,7 +2,7 @@
   "name": "꼬꼬택",
   "short_name": "꼬꼬택",
   "id": "/GogoTaxi-front/",
-  "start_url": "/GogoTaxi-front/login/",
+  "start_url": "/GogoTaxi-front/",
   "scope": "/GogoTaxi-front/",
   "display": "standalone",
   "background_color": "#fdd651",
