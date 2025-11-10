@@ -475,7 +475,7 @@ function submitReport() {
 .seat-select--report {
   width: min(520px, 96%);
   border-radius: 32px;
-  background: radial-gradient(circle at 50% 0%, #ffe7ac, #ffe0a4 38%, #ffd88a 100%);
+  background: #fff7e1;
   padding: clamp(24px, 4vw, 36px);
   box-shadow: 0 28px 60px rgba(120, 72, 7, 0.25);
 }
@@ -609,6 +609,13 @@ function submitReport() {
 }
 .seat-card__actions--report {
   justify-content: flex-end;
+}
+.seat-select--report .btn--ghost {
+  background: #fef0c2;
+  color: #7c2d12;
+}
+.seat-select--report .btn--ghost:hover:not(:disabled) {
+  background: #fde7a3;
 }
 .report-form {
   display: grid;
