@@ -113,13 +113,17 @@ const openProfileSettings = () => {
 
 <style scoped>
 .mypage-wrapper {
-  min-height: 100vh;
+  min-height: max(
+    0px,
+    calc(100dvh - var(--header-h) - var(--tab-h) - var(--safe-bottom) - var(--browser-ui-bottom))
+  );
   background: #3a2e20;
-  padding: 3.5rem 1.25rem 4rem;
+  padding: 3.5rem 1.25rem calc(3rem + var(--safe-bottom));
   font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
   display: flex;
   justify-content: center;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .page-container {
@@ -318,7 +322,7 @@ const openProfileSettings = () => {
 
 @media (min-width: 768px) {
   .mypage-wrapper {
-    padding: 4.5rem 2rem 4.5rem;
+    padding: 4.5rem 2rem calc(4rem + var(--safe-bottom));
   }
 
   .profile-name {
