@@ -1,6 +1,6 @@
 <template>
   <section ref="viewRef" class="find-room">
-    <div class="map-area">
+    <div class="map-area" :style="mapStyle">
       <RoomMap :rooms="sortedRooms" :selected-room="selectedRoom" />
     </div>
 
@@ -480,6 +480,21 @@ const sheetStyle = computed(() =>
     : { height: `${(sheetHeight.value / 100) * baseHeight.value}px` },
 )
 
+const sheetHeightPx = computed(() => {
+  const heightFromPercent = (value: number) => (value / 100) * baseHeight.value
+  if (isCollapsed.value) {
+    if (collapsedSheetHeight.value) {
+      return Math.min(collapsedSheetHeight.value, baseHeight.value)
+    }
+    return heightFromPercent(COLLAPSED_SHEET)
+  }
+  return heightFromPercent(sheetHeight.value)
+})
+
+const mapStyle = computed(() => ({
+  bottom: `${sheetHeightPx.value}px`,
+}))
+
 let startY = 0
 let startHeight = MID_SHEET
 let resizeObserver: ResizeObserver | null = null
@@ -670,6 +685,7 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   z-index: 0;
+  transition: bottom 0.3s ease;
 }
 
 .sheet {
