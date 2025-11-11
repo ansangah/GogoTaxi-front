@@ -1,6 +1,6 @@
 <template>
   <section ref="viewRef" class="find-room">
-    <div class="map-area">
+    <div class="map-area" :style="mapAreaStyle">
       <RoomMap :rooms="sortedRooms" :selected-room="selectedRoom" />
     </div>
 
@@ -477,6 +477,30 @@ const sheetStyle = computed(() =>
       : { height: 'auto' }
     : { height: `${(sheetHeight.value / 100) * baseHeight.value}px` },
 )
+const sheetPixelHeight = computed(() => {
+  if (isCollapsed.value) {
+    if (collapsedSheetHeight.value) {
+      return Math.min(collapsedSheetHeight.value, baseHeight.value)
+    }
+    const headerHeight = sheetHeaderRef.value?.getBoundingClientRect().height ?? 0
+    const listHeight = sheetListRef.value?.getBoundingClientRect().height ?? 0
+    const measured = headerHeight + listHeight
+    if (measured) {
+      return Math.min(measured, baseHeight.value)
+    }
+    return (COLLAPSED_SHEET / 100) * baseHeight.value
+  }
+  return (sheetHeight.value / 100) * baseHeight.value
+})
+const mapAreaStyle = computed(() => {
+  const sheetPx = Math.min(sheetPixelHeight.value, baseHeight.value)
+  return {
+    top: '0px',
+    left: '0px',
+    right: '0px',
+    bottom: `${sheetPx}px`,
+  }
+})
 
 let startY = 0
 let startHeight = MID_SHEET
@@ -665,8 +689,12 @@ onBeforeUnmount(() => {
 
 .map-area {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
   z-index: 0;
+  transition: bottom 0.3s ease;
 }
 
 .sheet {
