@@ -26,7 +26,14 @@
       </ul>
       <p v-if="searchStatus" class="location-picker__status">{{ searchStatus }}</p>
       <div ref="mapEl" class="location-picker__map" />
-      <p class="location-picker__coords">위도 {{ selectedPosition.lat.toFixed(5) }}, 경도 {{ selectedPosition.lng.toFixed(5) }}</p>
+      <p class="location-picker__coords">
+        <span class="location-picker__coords-label">
+          {{ selectedLabel || '지도를 움직여 위치를 선택해 주세요.' }}
+        </span>
+        <span class="location-picker__coords-meta">
+          위도 {{ selectedPosition.lat.toFixed(5) }}, 경도 {{ selectedPosition.lng.toFixed(5) }}
+        </span>
+      </p>
       <div class="location-picker__actions">
         <button type="button" class="picker-btn picker-btn--ghost" @click="$emit('cancel')">취소</button>
         <button type="button" class="picker-btn picker-btn--primary" @click="confirmSelection">위치 선택</button>
@@ -59,10 +66,16 @@ type KakaoGeocoderResult = {
   x: string
   y: string
   address?: { address_name?: string }
+  road_address?: { address_name?: string }
 }
 type KakaoGeocoder = {
   addressSearch(
     query: string,
+    callback: (result: KakaoGeocoderResult[], status: string) => void,
+  ): void
+  coord2Address(
+    lng: number,
+    lat: number,
     callback: (result: KakaoGeocoderResult[], status: string) => void,
   ): void
 }
@@ -120,7 +133,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  confirm: [GeoPoint]
+  confirm: [{ position: GeoPoint; label: string }]
   cancel: []
 }>()
 
@@ -129,6 +142,7 @@ const selectedPosition = ref<GeoPoint>(props.initialPosition ?? { lat: 37.5665, 
 const searchQuery = ref('')
 const searchStatus = ref('')
 const searching = ref(false)
+const selectedLabel = ref('')
 const suggestions = ref<
   Array<{ id: string; name: string; address: string; lat: number; lng: number }>
 >([])
@@ -143,16 +157,41 @@ let placesService: KakaoPlaces | null = null
 let suggestionTimer: ReturnType<typeof setTimeout> | null = null
 let suppressAutoSuggest = false
 
-function setMarkerPosition(position: GeoPoint) {
+function setMarkerPosition(position: GeoPoint, label?: string) {
   selectedPosition.value = position
+  if (label) {
+    selectedLabel.value = label
+  } else {
+    updateLabelFromPosition(position)
+  }
   if (!marker || !kakaoApi) return
   const latlng = new kakaoApi.maps.LatLng(position.lat, position.lng) as KakaoLatLng
   marker.setPosition(latlng)
   map?.setCenter(latlng)
 }
 
+function updateLabelFromPosition(position: GeoPoint) {
+  if (!geocoder || !kakaoApi) {
+    selectedLabel.value = `위도 ${position.lat.toFixed(5)}, 경도 ${position.lng.toFixed(5)}`
+    return
+  }
+  geocoder.coord2Address(position.lng, position.lat, (result, status) => {
+    if (status === kakaoApi!.maps.services.Status.OK && result[0]) {
+      selectedLabel.value =
+        result[0].road_address?.address_name ??
+        result[0].address?.address_name ??
+        `위도 ${position.lat.toFixed(5)}, 경도 ${position.lng.toFixed(5)}`
+    } else {
+      selectedLabel.value = `위도 ${position.lat.toFixed(5)}, 경도 ${position.lng.toFixed(5)}`
+    }
+  })
+}
+
 function confirmSelection() {
-  emit('confirm', selectedPosition.value)
+  emit('confirm', {
+    position: { ...selectedPosition.value },
+    label: selectedLabel.value || `위도 ${selectedPosition.value.lat.toFixed(5)}, 경도 ${selectedPosition.value.lng.toFixed(5)}`,
+  })
 }
 
 function searchAddress() {
@@ -185,8 +224,12 @@ function searchAddress() {
       lat: Number(first.y),
       lng: Number(first.x),
     }
-    searchStatus.value = `${first.address?.address_name ?? '선택한 위치'}로 이동했어요.`
-    setMarkerPosition(position)
+    const label =
+      first.road_address?.address_name ??
+      first.address?.address_name ??
+      `위도 ${position.lat.toFixed(5)}, 경도 ${position.lng.toFixed(5)}`
+    searchStatus.value = `${label}로 이동했어요.`
+    setMarkerPosition(position, label)
   })
 }
 
@@ -211,18 +254,18 @@ async function initMap() {
     map,
   }) as KakaoMarkerInstance
   geocoder = new kakaoApi.maps.services.Geocoder() as KakaoGeocoder
+  updateLabelFromPosition(selectedPosition.value)
   placesService = new kakaoApi.maps.services.Places() as KakaoPlaces
 
   kakaoApi.maps.event.addListener(marker as KakaoMarkerInstance, 'dragend', () => {
     const position = marker!.getPosition()
-    selectedPosition.value = { lat: position.getLat(), lng: position.getLng() }
+    setMarkerPosition({ lat: position.getLat(), lng: position.getLng() })
   })
 
   const updateFromMapCenter = () => {
-    if (!map || !marker) return
+    if (!map) return
     const currentCenter = map.getCenter()
-    marker.setPosition(currentCenter)
-    selectedPosition.value = { lat: currentCenter.getLat(), lng: currentCenter.getLng() }
+    setMarkerPosition({ lat: currentCenter.getLat(), lng: currentCenter.getLng() })
   }
 
   dragEndHandler = updateFromMapCenter
@@ -230,9 +273,7 @@ async function initMap() {
 
   const clickFn = (mouseEvent: KakaoMouseClickEvent) => {
     const latlng = mouseEvent.latLng
-    marker?.setPosition(latlng)
-    map?.setCenter(latlng)
-    selectedPosition.value = { lat: latlng.getLat(), lng: latlng.getLng() }
+    setMarkerPosition({ lat: latlng.getLat(), lng: latlng.getLng() })
   }
   clickHandler = clickFn
   if (map) {
@@ -266,7 +307,7 @@ function selectSuggestion(item: { id: string; name: string; address: string; lat
   searchQuery.value = item.name
   suggestions.value = []
   searchStatus.value = ''
-  setMarkerPosition({ lat: item.lat, lng: item.lng })
+  setMarkerPosition({ lat: item.lat, lng: item.lng }, item.address || item.name)
 }
 
 watch(searchQuery, value => {
@@ -439,9 +480,21 @@ onBeforeUnmount(() => {
 
 .location-picker__coords {
   margin: 0;
-  font-size: 13px;
-  color: #78350f;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   text-align: center;
+}
+
+.location-picker__coords-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.location-picker__coords-meta {
+  font-size: 12px;
+  color: #78350f;
 }
 
 .location-picker__actions {

@@ -237,6 +237,7 @@ const SNAP_THRESHOLD = 6
 const router = useRouter()
 const rooms = ref<RoomPreview[]>([...mockRooms])
 type SortMode = 'default' | 'nearest-departure' | 'nearest-arrival' | 'departure-time'
+type SelectedLocation = { position: GeoPoint; label: string }
 const sortMode = ref<SortMode>('default')
 const sortModes = [
   { value: 'default', label: '기본' },
@@ -246,8 +247,8 @@ const sortModes = [
 ] as const
 
 const userLocation = ref<GeoPoint | null>(null)
-const desiredDeparture = ref<GeoPoint | null>(null)
-const desiredArrival = ref<GeoPoint | null>(null)
+const desiredDeparture = ref<SelectedLocation | null>(null)
+const desiredArrival = ref<SelectedLocation | null>(null)
 const isLocating = ref(false)
 const locationError = ref<string | null>(null)
 const showSortOptions = ref(false)
@@ -326,7 +327,7 @@ const sortedRooms = computed(() => {
   switch (sortMode.value) {
     case 'nearest-departure':
       {
-        const anchor = desiredDeparture.value ?? userLocation.value
+        const anchor = desiredDeparture.value?.position ?? userLocation.value
         if (!anchor) return base
         return base.sort(
           (a, b) =>
@@ -336,10 +337,11 @@ const sortedRooms = computed(() => {
       }
     case 'nearest-arrival':
       if (!desiredArrival.value) return base
+      const anchor = desiredArrival.value.position
       return base.sort(
         (a, b) =>
-          distanceBetween(desiredArrival.value as GeoPoint, a.arrival.position) -
-          distanceBetween(desiredArrival.value as GeoPoint, b.arrival.position),
+          distanceBetween(anchor, a.arrival.position) -
+          distanceBetween(anchor, b.arrival.position),
       )
     case 'departure-time':
       {
@@ -353,7 +355,7 @@ const sortedRooms = computed(() => {
             Math.abs(aDate.getTime() - preferred.getTime()) -
             Math.abs(bDate.getTime() - preferred.getTime())
           if (timeDiff !== 0) return timeDiff
-          const location = desiredDeparture.value ?? userLocation.value
+          const location = desiredDeparture.value?.position ?? userLocation.value
           if (!location) return timeDiff
           return (
             distanceBetween(location, a.departure.position) -
@@ -394,11 +396,11 @@ function closePicker() {
   pickerMode.value = null
 }
 
-function handlePickerConfirm(position: GeoPoint) {
+function handlePickerConfirm(selection: SelectedLocation) {
   if (pickerMode.value === 'departure') {
-    desiredDeparture.value = position
+    desiredDeparture.value = selection
   } else if (pickerMode.value === 'arrival') {
-    desiredArrival.value = position
+    desiredArrival.value = selection
   }
   closePicker()
 }
@@ -416,9 +418,10 @@ function clearPreferredTime() {
   preferredMinute.value = ''
 }
 
-function formatLocationText(point: GeoPoint | null) {
-  if (!point) return '미설정'
-  return `${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`
+function formatLocationText(location: SelectedLocation | null) {
+  if (!location) return '미설정'
+  const { position, label } = location
+  return label || `${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`
 }
 
 const pickerTitle = computed(() =>
@@ -432,9 +435,14 @@ const pickerInitialPosition = computed<GeoPoint>(() => {
       lng: 126.978,
     }
   if (pickerMode.value === 'arrival') {
-    return desiredArrival.value ?? rooms.value[0]?.arrival.position ?? fallback
+    return desiredArrival.value?.position ?? rooms.value[0]?.arrival.position ?? fallback
   }
-  return desiredDeparture.value ?? userLocation.value ?? fallback
+  return (
+    desiredDeparture.value?.position ??
+    desiredArrival.value?.position ??
+    userLocation.value ??
+    fallback
+  )
 })
 
 const formattedPreferredTime = computed(() => {
