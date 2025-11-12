@@ -69,9 +69,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { login as mockLogin, socialLogin } from '@/services/auth'
+// 1. mockLogin 대신 axios 임포트
+// import { login as mockLogin, socialLogin } from '@/services/auth'
+import axios from 'axios'
 import { loginWithKakao } from '@/services/kakao'
 import { loginWithGoogle } from '@/services/google'
+import { socialLogin } from '@/services/auth' // socialLogin은 일단 그대로 둠
 
 const router = useRouter()
 const route = useRoute()
@@ -83,16 +86,34 @@ function resolveRedirect() {
   return (route.query.redirect as string) || '/home'
 }
 
+// 2. login 함수를 백엔드 API 호출로 수정
 async function login() {
   if (!id.value || !pw.value) {
     alert('아이디와 비밀번호를 입력해 주세요.')
     return
   }
   try {
-    mockLogin(id.value, pw.value)
+    // ⭐️ 백엔드 로그인 API 호출 ⭐️
+    const response = await axios.post('http://localhost:3000/api/auth/login', {
+      id: id.value,
+      pw: pw.value,
+    })
+
+    // (임시) 로그인 성공 시 토큰 저장
+    console.log('로그인 성공:', response.data.message)
+    localStorage.setItem('auth_token', `real-token-${Date.now()}`)
+    localStorage.setItem('auth_user', JSON.stringify(response.data.user))
+
     router.push(resolveRedirect())
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : '로그인에 실패했어요.'
+
+  } catch (err: unknown) { // 'any' 대신 'unknown'
+    let msg = '로그인에 실패했어요.'
+    // 백엔드가 보낸 에러 메시지(예: "비밀번호가 일치하지 않습니다.") 표시
+    if (axios.isAxiosError(err) && err.response?.data?.error) {
+      msg = err.response.data.error
+    } else if (err instanceof Error) {
+      msg = err.message
+    }
     alert(msg)
   }
 }

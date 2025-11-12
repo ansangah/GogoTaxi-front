@@ -66,7 +66,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { registerUser } from '@/services/auth'
+// 1. 기존 registerUser 임포트 제거
+// import { registerUser } from '@/services/auth'
+// 2. axios 임포트 추가
+import axios from 'axios'
 
 const router = useRouter()
 
@@ -83,10 +86,12 @@ function checkId() {
     alert('아이디를 입력해 주세요.')
     return
   }
+  // TODO: 이 부분도 나중에 백엔드 API(아이디 중복 확인)로 구현하는 것이 좋습니다.
   alert(`'${userid.value}' 아이디는 사용 가능한 예시입니다.`)
 }
 
-function submit() {
+// 3. submit 함수를 async로 변경
+async function submit() {
   if (!name.value || !userid.value || !pw.value || !pw2.value) {
     alert('필수 정보를 입력해 주세요.')
     return
@@ -100,19 +105,30 @@ function submit() {
     return
   }
 
+  // 4. 기존 try...catch 블록을 API 호출 코드로 변경
   try {
-    registerUser({
-      id: userid.value,
+    // ⭐️ 백엔드 회원가입 API 호출
+    const response = await axios.post('http://localhost:3000/api/auth/register', {
       name: name.value,
-      password: pw.value,
-      gender: gender.value,
+      userid: userid.value,
+      pw: pw.value, // 백엔드에서 'pw'로 받고 있습니다.
+      gender: gender.value || null,
       sms: sms.value,
       terms: terms.value,
     })
+
+    console.log('백엔드 응답:', response.data) // 성공 로그
     alert('회원가입이 완료되었습니다!')
     router.push({ name: 'login' })
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : '회원가입에 실패했습니다.'
+
+  } catch (err: unknown) { // 5. 'any' 대신 'unknown' 사용 및 에러 처리
+    let msg = '회원가입에 실패했습니다.'
+    // 백엔드에서 보낸 에러 메시지(예: "이미 사용 중인 아이디입니다.") 표시
+    if (axios.isAxiosError(err) && err.response?.data?.error) {
+      msg = err.response.data.error
+    } else if (err instanceof Error) {
+      msg = err.message
+    }
     alert(msg)
   }
 }
